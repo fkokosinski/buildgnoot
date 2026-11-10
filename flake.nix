@@ -1,0 +1,61 @@
+# Buildgnoot - nix flake
+# Copyright (C) 2026 Filip Kokosiński
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+{
+  description = "";
+
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+  };
+
+  outputs = { self, nixpkgs }:
+    let
+      system = "x86_64-linux";
+      pkgs = import nixpkgs { inherit system; };
+    in
+    {
+      devShells.x86_64-linux.default = pkgs.mkShell {
+        packages = with self.packages.${system}; with pkgs; [
+          autoconf
+          automake
+          automake116x
+          binutils
+          bison
+          fakeroot
+          flex
+          gcc
+          git
+          gmp.dev
+          gnumake
+          grub2
+          kconfig-frontends
+          libmpc
+          meson
+          mpfr.dev
+          ninja
+          parted
+          pkg-config
+          python3
+          qemu
+          wget
+          xorriso
+          zlib
+        ];
+
+        hardeningDisable = [ "all" ];
+      };
+    };
+}
