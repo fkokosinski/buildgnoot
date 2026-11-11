@@ -45,4 +45,6 @@ $(bg-pkg-source-path).stamp: $(bg-tarball-download-path) | $(BG_SOURCE_PATH)
 	tar mxaf $$< -C $(BG_SOURCE_PATH) --transform='s|^[^/]*|$(1)-$(bg-pkg-version)|'
 	touch $$@
 
+.PHONY: $(1)-download $(1)-source
+
 endef

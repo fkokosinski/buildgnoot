@@ -79,4 +79,6 @@ $(bg-pkg-install-path).stamp: $(bg-pkg-build-path).stamp | $(BG_INSTALL_PATH)
 
 $(1): $(1)-install
 
+.PHONY: $(1)-build $(1)-install $(1)
+
 endef
