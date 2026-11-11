@@ -19,11 +19,7 @@
 
 -include .config
 
-menuconfig:
-	@kconfig nconf Kconfig
-
-alldefconfig randconfig:
-	@kconfig conf --$@ Kconfig
+include buildgnoot/kconfig.mk
 
 clean:
 	@rm -rf .config
