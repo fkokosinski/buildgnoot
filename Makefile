@@ -22,8 +22,12 @@
 # note: keep these in order
 include buildgnoot/kconfig.mk
 include buildgnoot/paths.mk
+include buildgnoot/pkgs.mk
 
 clean:
 	@rm -rf .config
 
 .PHONY: clean
+
+include pkg/meta/*.mk
+include pkg/*/pkg.mk
