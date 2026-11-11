@@ -19,3 +19,8 @@ menuconfig:
 
 alldefconfig randconfig:
 	@kconfig conf --$@ Kconfig
+
+.PHONY: \
+	menuconfig \
+	alldefconfig \
+	randconfig
