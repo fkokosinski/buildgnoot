@@ -17,7 +17,7 @@
 # bg-tarball-download-path - returns a path to a tarball
 #
 # Inputs:
-#  - $(1): package name
+#  - $(1): package name; can be omitted if used within an $(eval $(call ...))
 #
 # Output: package tarball download path
 define bg-tarball-download-path

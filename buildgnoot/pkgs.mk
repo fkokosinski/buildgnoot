@@ -38,7 +38,7 @@ endef
 # bg-pkg-version - queries package version
 #
 # Inputs:
-#  - $(1): package name (can be ommitted/unshadowed)
+#  - $(1): package name; can be omitted if used within an $(eval $(call ...))
 #
 # Output: package version
 define bg-pkg-version
@@ -48,7 +48,7 @@ endef
 # bg-pkg-uri - queries package URI
 #
 # Inputs:
-#  - $(1): package name (can be ommitted/unshadowed)
+#  - $(1): package name; can be omitted if used within an $(eval $(call ...))
 #
 # Output: package URI
 define bg-pkg-uri
