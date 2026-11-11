@@ -8,3 +8,5 @@
 # buildgnoot
 .download/
 .source/
+.build/
+.install/

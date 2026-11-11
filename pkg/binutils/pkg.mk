@@ -18,4 +18,14 @@ BINUTILS_VERSION = 2.47
 BINUTILS_URI = https://ftpmirror.gnu.org/gnu/binutils/binutils-$(BINUTILS_VERSION).tar.xz
 BINUTILS_SHA256 = 154ab23b60070e8f27013c22977f1129425d67d1e8acd6e13010e617811e4cff
 
+BINUTILS_AUTOTOOLS_CONFIGURE_FLAGS = \
+	--target=$(CONFIG_BG_TOOLCHAIN_TARGET) \
+	--prefix=$(bg-pkg-install-path) \
+	--disable-static \
+	--disable-multilib \
+	--disable-nls
+BINUTILS_AUTOTOOLS_BUILD_TARGETS =
+BINUTILS_AUTOTOOLS_INSTALL_TARGETS = install
+
 $(eval $(call bg-fetch-tarball,binutils))
+$(eval $(call bg-build-autotools,binutils))

@@ -33,3 +33,31 @@ config BG_SOURCE_PATH
 
 	  Select where Buildgnoot should store package source code. Defaults to
 	  '$pwd/.source'.
+
+config BG_BUILD_PATH
+	string "Buildgnoot build path"
+	default ".build"
+	help
+	  Buildgnoot build path.
+
+	  Select where Buildgnoot should store package build artifacts. Defaults to
+	  '$pwd/.build'.
+
+config BG_INSTALL_PATH
+	string "Buildgnoot install path"
+	default ".install"
+	help
+	  Buildgnoot install path.
+
+	  Select where installgnoot should store package install artifacts. Defaults to
+	  '$pwd/.install'.
+
+config BG_TOOLCHAIN_TARGET
+	string "Cross-compiler toolchain target"
+	default "x86_64-gnu"
+	help
+	  Cross-compiler toolchain target. It's the system Buildgnoot builds for.
+
+	  Set to "x86_64-gnu" by default, and is used by e.g. GNU Autotools with
+	  the "--target" configuration option. It may need to be translated for other
+	  build systems.

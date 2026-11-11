@@ -40,5 +40,11 @@ BG_PATHS += $(BG_DOWNLOAD_PATH)
 BG_SOURCE_PATH = $(call bg-abspath,$(or $(CONFIG_BG_SOURCE_PATH),.source))
 BG_PATHS += $(BG_SOURCE_PATH)
 
+BG_BUILD_PATH = $(call bg-abspath,$(or $(CONFIG_BG_BUILD_PATH),.build))
+BG_PATHS += $(BG_BUILD_PATH)
+
+BG_INSTALL_PATH = $(call bg-abspath,$(or $(CONFIG_BG_INSTALL_PATH),.install))
+BG_PATHS += $(BG_INSTALL_PATH)
+
 $(BG_PATHS):
 	@mkdir -p $@
