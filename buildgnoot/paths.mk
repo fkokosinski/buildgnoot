@@ -34,7 +34,7 @@ define bg-suffix
 $(shell scripts/get-suffix.sh $(1))
 endef
 
-BG_DOWNLOAD_PATH = $(call bg-abspath,$(CONFIG_BG_DOWNLOAD_PATH))
+BG_DOWNLOAD_PATH = $(call bg-abspath,$(or $(CONFIG_BG_DOWNLOAD_PATH),.download))
 BG_PATHS += $(BG_DOWNLOAD_PATH)
 
 $(BG_PATHS):
