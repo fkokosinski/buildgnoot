@@ -38,4 +38,11 @@ $(bg-tarball-download-path): | $(BG_DOWNLOAD_PATH)
 	wget $(bg-pkg-uri) -O $$@
 	echo '$(bg-pkg-sha256)  $$@' | sha256sum --check --strict
 
+$(1)-source: $(bg-pkg-source-path).stamp
+
+$(bg-pkg-source-path).stamp: $(bg-tarball-download-path) | $(BG_SOURCE_PATH)
+	rm -rf $(bg-pkg-source-path)
+	tar mxaf $$< -C $(BG_SOURCE_PATH) --transform='s|^[^/]*|$(1)-$(bg-pkg-version)|'
+	touch $$@
+
 endef

@@ -64,3 +64,13 @@ endef
 define bg-pkg-sha256
 $(call bg-pkg-getprop,$(1),SHA256)
 endef
+
+# bg-pkg-source-path - queries package source path
+#
+# Inputs:
+#  - $(1): package name; can be omitted if used within an $(eval $(call ...))
+#
+# Output: package source path
+define bg-pkg-source-path
+$(BG_SOURCE_PATH)/$(1)-$(bg-pkg-version)
+endef

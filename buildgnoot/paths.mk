@@ -37,5 +37,8 @@ endef
 BG_DOWNLOAD_PATH = $(call bg-abspath,$(or $(CONFIG_BG_DOWNLOAD_PATH),.download))
 BG_PATHS += $(BG_DOWNLOAD_PATH)
 
+BG_SOURCE_PATH = $(call bg-abspath,$(or $(CONFIG_BG_SOURCE_PATH),.source))
+BG_PATHS += $(BG_SOURCE_PATH)
+
 $(BG_PATHS):
 	@mkdir -p $@

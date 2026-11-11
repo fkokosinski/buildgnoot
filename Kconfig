@@ -24,3 +24,12 @@ config BG_DOWNLOAD_PATH
 
 	  Select where Buildgnoot should save files it downloads during the build.
 	  Defaults to '$pwd/.download'.
+
+config BG_SOURCE_PATH
+	string "Buildgnoot source path"
+	default ".source"
+	help
+	  Buildgnoot source path.
+
+	  Select where Buildgnoot should store package source code. Defaults to
+	  '$pwd/.source'.
