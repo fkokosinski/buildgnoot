@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# bg-abspath - stripts quotes and converts to absolute path
+# bg-abspath - strips quotes and converts to absolute path
 # 
 # Inputs:
 #  - $(1): relative path

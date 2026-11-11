@@ -19,7 +19,7 @@
 # Inputs:
 #  - $(1): property name
 #
-# Output: property identifier (make varialbe)
+# Output: property identifier (make variable)
 define bg-pkg-fmtprop
 $(shell echo "$(1)" | tr '[:lower:]' '[:upper:]' | tr '-' '_')
 endef
