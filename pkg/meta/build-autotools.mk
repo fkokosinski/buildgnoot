@@ -54,11 +54,16 @@ define bg-build-autotools
 
 $(1)-build: $(bg-pkg-build-path).stamp
 
-$(bg-pkg-build-path).stamp: $(bg-pkg-source-path).stamp | $(BG_BUILD_PATH) $(BG_INSTALL_PATH)
+$(bg-pkg-build-path).stamp: $(bg-pkg-source-path).stamp $(foreach p,$(bg-pkg-bdeps),$(p)) | $(BG_BUILD_PATH) $(BG_INSTALL_PATH)
 	rm -rf $(bg-pkg-build-path)
 	mkdir -p $(bg-pkg-build-path)
 
 	pushd $(bg-pkg-build-path)
+	# note: bg-pkg-install-path is deferred so that alphabetical order of dependencies
+	# won't matter
+	$(foreach p,$(bg-pkg-bdeps),rsync -av $$(call bg-pkg-install-path,$(p))/ .)
+	export PATH="$$$$PATH:$$$$(realpath ./bin)"
+
 	$(bg-pkg-source-path)/configure $(bg-pkg-at-configure-flags)
 	$(MAKE) -j $(shell nproc) $(bg-pkg-at-build-targets)
 	popd
@@ -72,6 +77,7 @@ $(bg-pkg-install-path).stamp: $(bg-pkg-build-path).stamp | $(BG_INSTALL_PATH)
 	mkdir -p $(bg-pkg-install-path)
 
 	pushd $(bg-pkg-build-path)
+	export PATH="$$$$PATH:$$$$(realpath ./bin)"
 	$(MAKE) -j $(shell nproc) $(bg-pkg-at-install-targets)
 	popd
 

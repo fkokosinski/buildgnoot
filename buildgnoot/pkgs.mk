@@ -65,6 +65,16 @@ define bg-pkg-sha256
 $(call bg-pkg-getprop,$(1),SHA256)
 endef
 
+# bg-pkg-sha256 - queries package build dependencies
+#
+# Inputs:
+#  - $(1): package name; can be omitted if used within an $(eval $(call ...))
+#
+# Output: package build dependencies
+define bg-pkg-bdeps
+$(call bg-pkg-getprop,$(1),bdeps)
+endef
+
 # bg-pkg-source-path - queries package source path
 #
 # Inputs:
