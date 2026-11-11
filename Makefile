@@ -16,6 +16,7 @@
 
 .SECONDEXPAND:
 .ONESHELL:
+.DELETE_ON_ERROR:
 
 -include .config
 
