@@ -19,7 +19,9 @@
 
 -include .config
 
+# note: keep these in order
 include buildgnoot/kconfig.mk
+include buildgnoot/paths.mk
 
 clean:
 	@rm -rf .config
