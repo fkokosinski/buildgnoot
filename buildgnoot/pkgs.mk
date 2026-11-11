@@ -54,3 +54,13 @@ endef
 define bg-pkg-uri
 $(call bg-pkg-getprop,$(1),URI)
 endef
+
+# bg-pkg-sha256 - queries package sha256
+#
+# Inputs:
+#  - $(1): package name; can be omitted if used within an $(eval $(call ...))
+#
+# Output: package sha256
+define bg-pkg-sha256
+$(call bg-pkg-getprop,$(1),SHA256)
+endef

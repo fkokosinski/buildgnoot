@@ -16,5 +16,6 @@
 
 BINUTILS_VERSION = 2.47
 BINUTILS_URI = https://ftpmirror.gnu.org/gnu/binutils/binutils-$(BINUTILS_VERSION).tar.xz
+BINUTILS_SHA256 = 154ab23b60070e8f27013c22977f1129425d67d1e8acd6e13010e617811e4cff
 
 $(eval $(call bg-fetch-tarball,binutils))

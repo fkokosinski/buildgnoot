@@ -35,6 +35,7 @@ define bg-fetch-tarball
 $(1)-download: $(bg-tarball-download-path)
 
 $(bg-tarball-download-path): | $(BG_DOWNLOAD_PATH)
-	wget $(bg-pkg-uri) -O $(bg-tarball-download-path)
+	wget $(bg-pkg-uri) -O $$@
+	echo '$(bg-pkg-sha256)  $$@' | sha256sum --check --strict
 
 endef
