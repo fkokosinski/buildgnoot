@@ -29,6 +29,7 @@ include buildgnoot/pkgs.mk
 
 clean:
 	@rm -rf .config
+	@rm -rf $(BG_PATHS)
 
 .PHONY: clean
 
