@@ -4,3 +4,6 @@
 
 # Kconfig
 .config*
+
+# buildgnoot
+.download/

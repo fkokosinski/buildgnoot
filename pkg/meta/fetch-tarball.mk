@@ -1,0 +1,40 @@
+# Buildgnoot - tarball fetching machinery
+# Copyright (C) 2026 Filip Kokosiński
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# bg-tarball-download-path - returns a path to a tarball
+#
+# Inputs:
+#  - $(1): package name
+#
+# Output: package tarball download path
+define bg-tarball-download-path
+$(BG_DOWNLOAD_PATH)/$(1)-$(bg-pkg-version).$(call bg-suffix,$(bg-pkg-uri))
+endef
+
+# bg-fetch-tarball - tarball fetcher; needs to be called with $(eval ...)
+#
+# Inputs:
+#  - $(1): package name
+#
+# Output: 
+define bg-fetch-tarball
+
+$(1)-download: $(bg-tarball-download-path)
+
+$(bg-tarball-download-path): | $(BG_DOWNLOAD_PATH)
+	wget $(bg-pkg-uri) -O $(bg-tarball-download-path)
+
+endef
