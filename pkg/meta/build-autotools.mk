@@ -44,6 +44,10 @@ define bg-pkg-at-install-targets
 $(call bg-pkg-getprop,$(1),AUTOTOOLS_INSTALL_TARGETS)
 endef
 
+define bg-pkg-at-run-autoreconf
+$(call bg-pkg-getprop,$(1),AUTOTOOLS_RUN_AUTORECONF)
+endef
+
 # bg-build-autotools - autotools builder; needs to be called with $(eval ...)
 #
 # Inputs:
@@ -57,6 +61,10 @@ $(1)-build: $(bg-pkg-build-path).stamp
 $(bg-pkg-build-path).stamp: $(bg-pkg-source-path).stamp $(foreach p,$(bg-pkg-bdeps),$(p)) | $(BG_BUILD_PATH) $(BG_INSTALL_PATH)
 	rm -rf $(bg-pkg-build-path)
 	mkdir -p $(bg-pkg-build-path)
+
+	if [ "$(bg-pkg-at-run-autoreconf)" = "yes" ]; then
+		autoreconf -fi $(bg-pkg-source-path)
+	fi
 
 	pushd $(bg-pkg-build-path)
 	# note: bg-pkg-install-path is deferred so that alphabetical order of dependencies
