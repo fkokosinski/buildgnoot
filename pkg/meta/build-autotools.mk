@@ -69,7 +69,7 @@ $(bg-pkg-build-path).stamp: $(bg-pkg-source-path).stamp $(foreach p,$(bg-pkg-bde
 	pushd $(bg-pkg-build-path)
 	# note: bg-pkg-install-path is deferred so that alphabetical order of dependencies
 	# won't matter
-	$(foreach p,$(bg-pkg-bdeps),rsync -av $$(call bg-pkg-install-path,$(p))/ .)
+	$(foreach p,$(bg-pkg-bdeps),rsync -av $$(call bg-pkg-install-path,$(p))/ .;)
 	export PATH="$$$$PATH:$$$$(realpath ./bin)"
 
 	$(bg-pkg-source-path)/configure $(bg-pkg-at-configure-flags)
