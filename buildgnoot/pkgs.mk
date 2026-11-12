@@ -35,6 +35,17 @@ define bg-pkg-getprop
 $($(call bg-pkg-fmtprop,$(1)_$(2)))
 endef
 
+# bg-pkg-getprop-raw - queries a package property; don't eval variable
+#
+# Inputs:
+#  - $(1): package name
+#  - $(2): property name
+# 
+# Output: property variable
+define bg-pkg-getprop-raw
+$(call bg-pkg-fmtprop,$(1)_$(2))
+endef
+
 # bg-pkg-version - queries package version
 #
 # Inputs:

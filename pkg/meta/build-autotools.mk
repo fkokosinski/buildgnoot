@@ -30,8 +30,8 @@ endef
 #  - $(1): package name; can be omitted if used within an $(eval $(call ...))
 #
 # Output: package build targets
-define bg-pkg-at-build-targets
-$(call bg-pkg-getprop,$(1),AUTOTOOLS_BUILD_TARGETS)
+define bg-pkg-at-build-targets-raw
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_BUILD_TARGETS)
 endef
 
 # bg-pkg-at-configure-flags - returns Autotools install targets
@@ -73,7 +73,7 @@ $(bg-pkg-build-path).stamp: $(bg-pkg-source-path).stamp $(foreach p,$(bg-pkg-bde
 	export PATH="$$$$PATH:$$$$(realpath ./bin)"
 
 	$(bg-pkg-source-path)/configure $(bg-pkg-at-configure-flags)
-ifdef $(bg-pkg-at-build-targets)
+ifdef $(bg-pkg-at-build-targets-raw)
 	$(MAKE) -j $(shell nproc) $(bg-pkg-at-build-targets)
 endif
 	popd

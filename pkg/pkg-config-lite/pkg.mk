@@ -23,7 +23,7 @@ PKG_CONFIG_LITE_AUTOTOOLS_CONFIGURE_FLAGS = \
 	--prefix=$(bg-pkg-install-path) \
 	--disable-host-tool
 
-PKG_CONFIG_LITE_AUTOTOOLS_BUILD_TARGETS =
+PKG_CONFIG_LITE_AUTOTOOLS_BUILD_TARGETS = $(bg-space)
 PKG_CONFIG_LITE_AUTOTOOLS_INSTALL_TARGETS = install
 
 $(eval $(call bg-fetch-tarball,pkg-config-lite))

@@ -20,6 +20,9 @@ SHELL = bash
 .ONESHELL:
 .DELETE_ON_ERROR:
 
+bg-empty :=
+bg-space := $(bg-empty) $(bg-empty)
+
 -include .config
 
 # note: keep these in order

@@ -41,7 +41,7 @@ GCC_STAGE_1_AUTOTOOLS_CONFIGURE_FLAGS = \
 	--without-headers \
 	--with-system-zlib
 
-GCC_STAGE_1_AUTOTOOLS_BUILD_TARGETS =
+GCC_STAGE_1_AUTOTOOLS_BUILD_TARGETS = $(bg-space)
 GCC_STAGE_1_AUTOTOOLS_INSTALL_TARGETS = install
 
 $(eval $(call bg-fetch-tarball,gcc-stage-1))

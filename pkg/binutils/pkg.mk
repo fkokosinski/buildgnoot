@@ -24,7 +24,7 @@ BINUTILS_AUTOTOOLS_CONFIGURE_FLAGS = \
 	--disable-static \
 	--disable-multilib \
 	--disable-nls
-BINUTILS_AUTOTOOLS_BUILD_TARGETS =
+BINUTILS_AUTOTOOLS_BUILD_TARGETS = $(bg-space)
 BINUTILS_AUTOTOOLS_INSTALL_TARGETS = install
 
 $(eval $(call bg-fetch-tarball,binutils))
