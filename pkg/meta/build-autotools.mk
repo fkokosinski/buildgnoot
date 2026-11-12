@@ -58,7 +58,7 @@ define bg-build-autotools
 
 $(1)-build: $(bg-pkg-build-path).stamp
 
-$(bg-pkg-build-path).stamp: $(bg-pkg-source-path).stamp $(foreach p,$(bg-pkg-bdeps),$(p)) | $(BG_BUILD_PATH) $(BG_INSTALL_PATH)
+$(bg-pkg-build-path).stamp: $(bg-pkg-source-path).stamp $(foreach p,$(bg-pkg-bdeps),$(call bg-pkg-install-path,$(p))) | $(BG_BUILD_PATH) $(BG_INSTALL_PATH)
 	rm -rf $(bg-pkg-build-path)
 	mkdir -p $(bg-pkg-build-path)
 
