@@ -73,7 +73,9 @@ $(bg-pkg-build-path).stamp: $(bg-pkg-source-path).stamp $(foreach p,$(bg-pkg-bde
 	export PATH="$$$$PATH:$$$$(realpath ./bin)"
 
 	$(bg-pkg-source-path)/configure $(bg-pkg-at-configure-flags)
+ifdef $(bg-pkg-at-build-targets)
 	$(MAKE) -j $(shell nproc) $(bg-pkg-at-build-targets)
+endif
 	popd
 
 	touch $$@
