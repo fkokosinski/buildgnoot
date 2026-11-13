@@ -93,7 +93,7 @@ endef
 #
 # Output: package source path
 define bg-pkg-source-path
-$(BG_SOURCE_PATH)/$(1)-$(bg-pkg-version)
+$(BG_SOURCE_PATH)/$(1)-$(call bg-pkg-version,$(1))
 endef
 
 # bg-pkg-build-path - queries package build path
@@ -103,7 +103,7 @@ endef
 #
 # Output: package build path
 define bg-pkg-build-path
-$(BG_BUILD_PATH)/$(1)-$(bg-pkg-version)
+$(BG_BUILD_PATH)/$(1)-$(call bg-pkg-version,$(1))
 endef
 
 # bg-pkg-install-path - queries package install path
@@ -113,5 +113,15 @@ endef
 #
 # Output: package install path
 define bg-pkg-install-path
-$(BG_INSTALL_PATH)/$(1)-$(bg-pkg-version)
+$(BG_INSTALL_PATH)/$(1)-$(call bg-pkg-version,$(1))
+endef
+
+# bg-pkg-install-path - queries package install path (deferred)
+#
+# Inputs:
+#  - $(1): package name; can be omitted if used within an $(eval $(call ...))
+#
+# Output: package install path (deferred)
+define bg-pkg-deferred-install-path
+$$(call bg-pkg-install-path,$(1))
 endef

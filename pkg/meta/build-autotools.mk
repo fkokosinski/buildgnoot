@@ -58,7 +58,7 @@ define bg-build-autotools
 
 $(1)-build: $(bg-pkg-build-path).stamp
 
-$(bg-pkg-build-path).stamp: $(bg-pkg-source-path).stamp $(foreach p,$(bg-pkg-bdeps),$(call bg-pkg-install-path,$(p))) | $(BG_BUILD_PATH) $(BG_INSTALL_PATH)
+$(bg-pkg-build-path).stamp: $(bg-pkg-source-path).stamp $(foreach p,$(bg-pkg-bdeps),$(call bg-pkg-install-path-deferred,$(p))) | $(BG_BUILD_PATH) $(BG_INSTALL_PATH)
 	rm -rf $(bg-pkg-build-path)
 	mkdir -p $(bg-pkg-build-path)
 
@@ -67,8 +67,8 @@ $(bg-pkg-build-path).stamp: $(bg-pkg-source-path).stamp $(foreach p,$(bg-pkg-bde
 	fi
 
 	pushd $(bg-pkg-build-path)
-	# note: bg-pkg-install-path is deferred so that alphabetical order of dependencies
-	# won't matter
+	# note: use bg-pkg-install-path-deferred to not depend on alphabetical order of
+	# build dependencies
 	$(foreach p,$(bg-pkg-bdeps),rsync -av $$(call bg-pkg-install-path,$(p))/ .;)
 	export PATH="$$$$PATH:$$$$(realpath ./bin)"
 
