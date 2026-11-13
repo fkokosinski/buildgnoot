@@ -30,7 +30,7 @@ GLIBC_STAGE_1_AUTOTOOLS_CONFIGURE_FLAGS = \
 	RANLIB=$(CONFIG_BG_TOOLCHAIN_TARGET)-ranlib \
 	libc_cv_ctors_header=yes \
 	--host=$(CONFIG_BG_TOOLCHAIN_TARGET) \
-	--prefix=/usr \
+	--prefix= \
 	--disable-nscd \
 	--disable-profile \
 	--enable-add-ons=libpthread \
