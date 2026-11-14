@@ -1,16 +1,16 @@
 # Buildgnoot - gcc package
 # Copyright (C) 2026 Filip Kokosiński
-
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-
+#
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -23,6 +23,7 @@ GCC_STAGE_1_BDEPS = binutils
 GCC_STAGE_1_AUTOTOOLS_CONFIGURE_FLAGS = \
 	--target=$(CONFIG_BG_TOOLCHAIN_TARGET) \
 	--prefix=$(bg-pkg-install-path) \
+	--with-sysroot=$(call bg-pkg-install-path,bg-toolchain)/$(CONFIG_BG_TOOLCHAIN_TARGET) \
 	--disable-bootstrap \
 	--disable-decimal-float \
 	--disable-gcov \
@@ -57,7 +58,7 @@ GCC_AUTOTOOLS_CONFIGURE_FLAGS = \
 	LDFLAGS_FOR_TARGET="-Wl,-rpath-link,$(bg-pkg-build-path)/lib" \
 	--target=$(CONFIG_BG_TOOLCHAIN_TARGET) \
 	--prefix=$(bg-pkg-install-path) \
-	--with-sysroot \
+	--with-sysroot=$(call bg-pkg-install-path,bg-toolchain)/$(CONFIG_BG_TOOLCHAIN_TARGET) \
 	--with-build-sysroot=$(bg-pkg-build-path) \
 	--with-native-system-header-dir=/include \
 	--disable-bootstrap \

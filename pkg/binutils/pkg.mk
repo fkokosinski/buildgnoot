@@ -21,6 +21,7 @@ BINUTILS_SHA256 = 154ab23b60070e8f27013c22977f1129425d67d1e8acd6e13010e617811e4c
 BINUTILS_AUTOTOOLS_CONFIGURE_FLAGS = \
 	--target=$(CONFIG_BG_TOOLCHAIN_TARGET) \
 	--prefix=$(bg-pkg-install-path) \
+	--with-sysroot=$(call bg-pkg-install-path,bg-toolchain)/$(CONFIG_BG_TOOLCHAIN_TARGET) \
 	--disable-static \
 	--disable-multilib \
 	--disable-nls
