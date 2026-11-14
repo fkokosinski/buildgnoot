@@ -33,7 +33,7 @@ bg-toolchain-build:
 
 bg-toolchain-install: $(call bg-pkg-install-path,bg-toolchain).stamp
 
-$(call bg-pkg-install-path,bg-toolchain).stamp: $(foreach p,$(BG_TOOLCHAIN_BDEPS),$(call bg-pkg-deferred-install-path,$(p))) | $(BG_INSTALL_PATH)
+$(call bg-pkg-install-path,bg-toolchain).stamp: $(foreach p,$(BG_TOOLCHAIN_BDEPS),$(call bg-pkg-deferred-install-path,$(p)).stamp) | $(BG_INSTALL_PATH)
 	rm -rf $(call bg-pkg-install-path,bg-toolchain)
 	mkdir -p $(call bg-pkg-install-path,bg-toolchain)
 
