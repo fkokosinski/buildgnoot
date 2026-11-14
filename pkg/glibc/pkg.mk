@@ -42,3 +42,31 @@ GLIBC_STAGE_1_AUTOTOOLS_INSTALL_TARGETS = install_root=$(bg-pkg-install-path) in
 
 $(eval $(call bg-fetch-tarball,glibc-stage-1))
 $(eval $(call bg-build-autotools,glibc-stage-1))
+
+GLIBC_VERSION = 2.44
+GLIBC_URI = https://ftpmirror.gnu.org/glibc/glibc-$(GLIBC_VERSION).tar.gz
+GLIBC_SHA256 = 1217fc41ac7fb1f310c8c32b9c6c009cc769398d4b367b6aa57be0bb3ea8c1ef
+GLIBC_BDEPS = \
+	binutils \
+	gcc \
+	hurd-headers \
+	gnumach-headers \
+	mig
+
+GLIBC_AUTOTOOLS_CONFIGURE_FLAGS = \
+	CC=$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc \
+	AR=$(CONFIG_BG_TOOLCHAIN_TARGET)-ar \
+	RANLIB=$(CONFIG_BG_TOOLCHAIN_TARGET)-ranlib \
+	--host=$(CONFIG_BG_TOOLCHAIN_TARGET) \
+	--prefix= \
+	--disable-nscd \
+	--disable-profile \
+	--enable-add-ons=libpthread \
+	--enable-obsolete-rpc \
+	--with-headers=$(bg-pkg-build-path)/include
+
+GLIBC_AUTOTOOLS_BUILD_TARGETS = $(bg-space)
+GLIBC_AUTOTOOLS_INSTALL_TARGETS = install_root=$(bg-pkg-install-path) install
+
+$(eval $(call bg-fetch-tarball,glibc))
+$(eval $(call bg-build-autotools,glibc))

@@ -72,8 +72,8 @@ GCC_AUTOTOOLS_CONFIGURE_FLAGS = \
 	--with-libstdcxx-time \
 	--with-system-zlib
 
-GCC_AUTOTOOLS_BUILD_TARGETS = all-gcc all-target-libgcc all-target-libstdc++-v3
-GCC_AUTOTOOLS_INSTALL_TARGETS = install-gcc install-target-libgcc install-target-libstdc++-v3
+GCC_AUTOTOOLS_BUILD_TARGETS = $(bg-space)
+GCC_AUTOTOOLS_INSTALL_TARGETS = install
 
 $(eval $(call bg-fetch-tarball,gcc))
 $(eval $(call bg-build-autotools,gcc))
