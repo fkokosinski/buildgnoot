@@ -1,16 +1,16 @@
 # Buildgnoot - autotools building machinery
 # Copyright (C) 2026 Filip Kokosiński
-
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-
+#
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -58,7 +58,7 @@ define bg-build-autotools
 
 $(1)-build: $(bg-pkg-build-path).stamp
 
-$(bg-pkg-build-path).stamp: $(bg-pkg-source-path).stamp $(foreach p,$(bg-pkg-bdeps),$(call bg-pkg-install-path-deferred,$(p))) | $(BG_BUILD_PATH) $(BG_INSTALL_PATH)
+$(bg-pkg-build-path).stamp: $(bg-pkg-source-path).stamp $(foreach p,$(bg-pkg-bdeps),$$(call bg-pkg-deferred-install-path,$(p)).stamp) | $(BG_BUILD_PATH) $(BG_INSTALL_PATH)
 	rm -rf $(bg-pkg-build-path)
 	mkdir -p $(bg-pkg-build-path)
 
