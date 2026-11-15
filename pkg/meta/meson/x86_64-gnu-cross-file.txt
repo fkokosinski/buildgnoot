@@ -1,0 +1,13 @@
+[host_machine]
+system = 'gnu'
+cpu_family = 'x86_64'
+cpu = 'x86_64'
+endian = 'little'
+
+[binaries]
+c = 'x86_64-gnu-gcc'
+cpp = 'x86_64-gnu-cpp'
+ar = 'x86_64-gnu-ar'
+ld = 'x86_64-gnu-ld'
+strip = 'x86_64-gnu-strip'
+pkg-config = 'pkg-config'
