@@ -55,3 +55,24 @@ LIBIRQHELP_AUTOTOOLS_INSTALL_TARGETS = libirqhelp-install
 
 $(eval $(call bg-fetch-git,libirqhelp))
 $(eval $(call bg-build-autotools,libirqhelp))
+
+LIBSHOULDBEINLIBC_VERSION = 2336993cf542f430a424fbad426844594c80d213
+LIBSHOULDBEINLIBC_URI = git://git.git.savannah.gnu.org/hurd/hurd.git
+
+LIBSHOULDBEINLIBC_AUTOTOOLS_RUN_AUTORECONF = yes
+LIBSHOULDBEINLIBC_AUTOTOOLS_CONFIGURE_FLAGS = \
+	CC=$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc \
+	CXX=$(CONFIG_BG_TOOLCHAIN_TARGET)-g++ \
+	AR=$(CONFIG_BG_TOOLCHAIN_TARGET)-ar \
+	RANLIB=$(CONFIG_BG_TOOLCHAIN_TARGET)-ranlib \
+	LDFLAGS="-ldl -lhurduser -lmachuser" \
+	--host=$(CONFIG_BG_TOOLCHAIN_TARGET) \
+	--prefix=$(bg-pkg-install-path) \
+	--disable-profile \
+	--without-parted
+
+LIBSHOULDBEINLIBC_AUTOTOOLS_BUILD_TARGETS = libshouldbeinlibc
+LIBSHOULDBEINLIBC_AUTOTOOLS_INSTALL_TARGETS = libshouldbeinlibc-install
+
+$(eval $(call bg-fetch-git,libshouldbeinlibc))
+$(eval $(call bg-build-autotools,libshouldbeinlibc))
