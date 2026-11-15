@@ -1,0 +1,32 @@
+From c3e354b0b1420a01730bd79a4f81b9efc4071228 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Filip=20Kokosi=C5=84ski?= <filip@kokosinski.me>
+Date: Sun, 1 Nov 2026 17:04:36 +0100
+Subject: [PATCH] Fix compilation for GNU Hurd
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+-lmachuser and -lhurduser are required for the compilation to succeed.
+
+Signed-off-by: Filip Kokosiński <filip@kokosinski.me>
+---
+ meson.build | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/meson.build b/meson.build
+index c205157..37278b2 100644
+--- a/meson.build
++++ b/meson.build
+@@ -90,6 +90,9 @@ if host_machine.system() == 'netbsd'
+   endif
+ elif host_machine.system() == 'sunos'
+   extra_libs += c.find_library('devinfo')
++elif host_machine.system() == 'gnu'
++  extra_libs += c.find_library('machuser')
++  extra_libs += c.find_library('hurduser')
+ endif
+ 
+ if host_machine.system() == 'netbsd'
+-- 
+2.54.0
+
