@@ -1,0 +1,14 @@
+--- a/include/acpi/actypes.h
++++ b/include/acpi/actypes.h
+@@ -1233,9 +1233,9 @@
+ 	ACPI_MEM_MAPPING *first_mm;
+ };
+ 
+-struct acpi_data_table_space_context {
++typedef struct acpi_data_table_space_context {
+ 	void *pointer;
+-};
++} ACPI_DATA_TABLE_MAPPING;
+ 
+ /*
+  * struct acpi_memory_list is used only if the ACPICA local cache is enabled

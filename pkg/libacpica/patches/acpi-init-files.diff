@@ -1,0 +1,1234 @@
+--- /dev/null
++++ b/acpi_init.c
+@@ -0,0 +1,1217 @@
++// SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0
++#include <acpi/acpi.h>
++
++#include <stdio.h>
++#include <sys/time.h>
++#include <sys/io.h>
++#include <stddef.h>
++#include <string.h>
++#include <ctype.h>
++#include <assert.h>
++#include <mach/vm_param.h>
++#include <errno.h>
++#include <sys/mman.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <fcntl.h>
++#include <unistd.h>
++#include <stdarg.h>
++#include <semaphore.h>
++#include <limits.h>
++
++#include <device/device.h>
++#include <device/irq_status.h>
++#include <hurd.h>
++#include <pciaccess.h>
++#include <hurd/irqhelp.h>
++#ifdef __x86_64__
++#include <mach/host_info.h>
++#endif /* __x86_64__ */
++
++/* libacpica uses 0 as an 'invalid' address. */
++#define ACPI_INVALID_PHYSADDR 0
++
++#define ACPI_MAX_TABLES 128
++
++#define PCI_CFG1_START 0xcf8
++#define PCI_CFG1_END   0xcff
++
++#define PCI_INTERRUPT_PIN 0x3d
++#define BAD_PIC_MODE(m) ((m) < ACPI_PICMODE_PIC || (m) > ACPI_PICMODE_SAPIC)
++
++#define PCI_HDR_TYPE_REG        0x0e
++#define PCI_HDR_TYPE_PPB        1
++#define PCI_PPB_SECBUS_REG      0x19
++#define PCI_MAX_DEV_ID          0x1f
++#define PCI_MAX_FUNC_ID         0x7
++#define PCI_MULTI_FUNC_MASK     0x80
++
++extern acpi_status acpi_hw_legacy_sleep(u8 sleep_state);
++
++// Lets keep the ACPI tables in this module
++static struct acpi_table_desc initial_tables[ACPI_MAX_TABLES];
++
++static struct pci_device **pci_devices;
++static int numdevs = -1;
++static int pic_mode = -1;
++
++typedef struct acpi_pci_bridge
++{
++  acpi_handle handle;
++  uint8_t up_bus;
++  uint8_t down_bus;
++  /*  dev/func is the address of the bridge on its parent bus. */
++  uint16_t dev;
++  uint16_t func;
++  struct acpi_pci_bridge* next;
++} acpi_pci_bridge_t;
++
++static acpi_pci_bridge_t* acpi_pci_bridges;
++
++struct slots {
++  uint8_t bus;
++  uint16_t dev;
++  uint16_t func;
++  acpi_handle handle;
++  struct slots *next;
++};
++
++static int
++pci_init(void)
++{
++  int i;
++  struct pci_device_iterator *dev_iter;
++  struct pci_device *pci_dev;
++  struct pci_device **tmp;
++
++  pci_system_init ();
++
++  numdevs = 0;
++  dev_iter = pci_slot_match_iterator_create (NULL);
++  while ((pci_dev = pci_device_next (dev_iter)) != NULL)
++    numdevs++;
++
++  pci_devices = malloc (sizeof(struct pci_device *));
++  if (pci_devices == NULL)
++    return errno;
++  tmp = pci_devices;
++
++  i = 0;
++  dev_iter = pci_slot_match_iterator_create (NULL);
++  while ((pci_dev = pci_device_next (dev_iter)) != NULL)
++    {
++      if ((tmp = realloc(pci_devices, (i + 1) * sizeof(*tmp))) == NULL)
++        {
++          free(pci_devices);
++          return errno;
++        }
++      pci_devices = tmp;
++      pci_device_probe(pci_dev);
++      pci_devices[i++] = pci_dev;
++    }
++  return 0;
++}
++
++struct pci_device *
++lookup_pci_dev(struct acpi_pci_id *pci_id)
++{
++  int i;
++
++  for (i = 0; i < numdevs; i++)
++    {
++      if ((pci_devices[i]->domain == pci_id->segment)
++       && (pci_devices[i]->bus == pci_id->bus)
++       && (pci_devices[i]->dev == pci_id->device)
++       && (pci_devices[i]->func == pci_id->function))
++        {
++          return pci_devices[i];
++        }
++    }
++    acpi_os_printf("Can't find pci dev %04x:%d:%02x.%d\n", pci_id->segment, pci_id->bus, pci_id->device, pci_id->function);
++    return NULL;
++}
++
++static void
++acpi_unload_pci_bridges(void)
++{
++  while (acpi_pci_bridges != NULL)
++    {
++      acpi_pci_bridge_t* bridge = acpi_pci_bridges;
++      acpi_pci_bridges = bridge->next;
++      free(bridge);
++    }
++}
++
++void
++acpi_ds_dump_method_stack(acpi_status status, ...)
++//    struct acpi_walk_state *walk_state, union acpi_parse_object *op)
++{
++  return;
++}
++
++void
++acpi_os_printf(const char *fmt, ...)
++{
++  va_list args;
++  va_start(args, fmt);
++  acpi_os_vprintf(fmt, args);
++  va_end(args);
++}
++
++void
++acpi_os_vprintf(const char *fmt, va_list args)
++{
++  vprintf(fmt, args);
++}
++
++acpi_status
++acpi_os_execute(acpi_execute_type type,
++    acpi_osd_exec_callback function, void *context)
++{
++  function(context);
++  return AE_OK;
++}
++
++#ifdef __x86_64__
++static error_t
++acpi_mach_efi_root (acpi_physical_address *pa)
++{
++#ifdef HOST_EFI_SYSTAB
++  mach_msg_type_number_t size = HOST_EFI_SYSTAB_COUNT;
++  host_efi_systab_data_t systab;
++
++  if (host_info (mach_host_self (), HOST_EFI_SYSTAB,
++		 (host_info_t) &systab, &size)
++      || systab == HOST_NO_UEFI)
++    return ENODEV;
++
++  *pa = systab;
++
++  return 0;
++#else
++  return ENODEV;
++#endif
++}
++
++struct efi_table_header
++{
++  uint64_t signature;
++  uint32_t revision;
++  uint32_t size;
++  uint32_t crc32;
++  uint32_t reserved;
++};
++
++typedef uint64_t efi_pa_t;
++typedef uint64_t efi_handle_t;
++typedef uint8_t  efi_guid_t[16];
++
++struct efi_system_table64
++{
++  struct efi_table_header hdr;
++
++  efi_pa_t     fw_vendor_pa;
++  uint32_t     fw_revision;
++  uint32_t     pad1;
++  efi_handle_t con_in_handle;
++  efi_pa_t     con_in;
++  efi_handle_t con_out_handle;
++  efi_pa_t     con_out;
++  efi_handle_t stderr_handle;
++  efi_pa_t     stderr;
++  efi_pa_t     runtime;
++  efi_pa_t     boottime;
++  uint32_t     nr_tables;
++  uint32_t     pad2;
++  efi_pa_t     tables;
++};
++
++struct efi_config_table64
++{
++  efi_guid_t guid;
++  efi_pa_t   table;
++};
++
++static const efi_guid_t acpi0_table_guid = {
++  0x30, 0x2d, 0x9d, 0xeb,
++  0x88, 0x2d,
++  0xd3, 0x11,
++  0x9a, 0x16, 0x00, 0x90, 0x27, 0x3f, 0xc1, 0x4d
++};
++
++static const efi_guid_t acpi2_table_guid = {
++  0x71, 0xe8, 0x68, 0x88,
++  0xf1, 0xe4,
++  0xd3, 0x11,
++  0xbc, 0x22, 0x00, 0x80, 0xc7, 0x3c, 0x88, 0x81
++};
++
++#define EFI_SYSTEM_TABLE_SIGNATURE 0x5453595320494249ULL
++
++static uint64_t
++acpi_root_pointer_from_efi (void)
++{
++  uint64_t result = ACPI_INVALID_PHYSADDR;
++  uint64_t efi_system;
++
++  if (acpi_mach_efi_root (&efi_system))
++    return result;
++
++  struct efi_system_table64 *efi_ptr = (struct efi_system_table64 *)
++    acpi_os_map_memory (efi_system, sizeof (struct efi_system_table64));
++
++  if (efi_ptr == MAP_FAILED)
++    return result;
++
++  if (efi_ptr->hdr.signature == EFI_SYSTEM_TABLE_SIGNATURE
++      && efi_ptr->nr_tables > 0)
++    {
++      const acpi_size ct_sz = (sizeof (struct efi_system_table64) * efi_ptr->nr_tables);
++      struct efi_config_table64 *config_tables =
++	(struct efi_config_table64 *)acpi_os_map_memory	(efi_ptr->tables, ct_sz);
++
++      if (config_tables != MAP_FAILED)
++	{
++	  for (unsigned int i = 0; i < efi_ptr->nr_tables; i++)
++	    {
++	      if (memcmp (&config_tables->guid,
++			  &acpi2_table_guid,
++			  sizeof(efi_guid_t)) == 0)
++		{
++		  result = config_tables->table;
++		  /* Higher versions are preferred. */
++		  break;
++		}
++	      else if (memcmp (&config_tables->guid,
++			       &acpi0_table_guid,
++			       sizeof(efi_guid_t)) == 0)
++		{
++		  result = config_tables->table;
++		}
++
++	      config_tables++;
++	    }
++
++	  acpi_os_unmap_memory (config_tables, ct_sz);
++	}
++    }
++
++  acpi_os_unmap_memory (efi_ptr, sizeof(struct efi_system_table64));
++
++  if (result != ACPI_INVALID_PHYSADDR)
++    {
++      struct acpi_rsdp_common *rsdp_ptr = (struct acpi_rsdp_common *)
++	acpi_os_map_memory (result, sizeof (struct acpi_rsdp_common));
++
++      if (rsdp_ptr == MAP_FAILED)
++	{
++	  result = ACPI_INVALID_PHYSADDR;
++	}
++      else
++	{
++	  if (memcmp (rsdp_ptr->signature,
++		      ACPI_SIG_RSDP,
++		      sizeof(rsdp_ptr->signature)))
++	    {
++	      result = ACPI_INVALID_PHYSADDR;
++	    }
++
++	  acpi_os_unmap_memory (rsdp_ptr, sizeof(struct acpi_rsdp_common));
++	}
++    }
++
++  return result;
++}
++#endif /* __x86_64__ */
++
++acpi_physical_address
++acpi_os_get_root_pointer(void)
++{
++  acpi_physical_address pa = ACPI_INVALID_PHYSADDR;
++
++#ifdef __x86_64__
++  uint64_t rsdp = acpi_root_pointer_from_efi ();
++
++  if (rsdp != ACPI_INVALID_PHYSADDR)
++    pa = rsdp;
++#endif /* __x86_64__ */
++
++  if (pa == ACPI_INVALID_PHYSADDR)
++    acpi_find_root_pointer(&pa);
++
++  return pa;
++}
++
++acpi_status
++acpi_os_physical_table_override(struct acpi_table_header *existing_table,
++				acpi_physical_address *address,
++				u32 *table_length)
++{
++  *table_length = 0;
++  *address = 0;
++  return AE_OK;
++}
++
++acpi_status
++acpi_os_table_override(struct acpi_table_header *existing_table,
++		       struct acpi_table_header **new_table)
++{
++  if (!existing_table || !new_table)
++    return AE_BAD_PARAMETER;
++
++  *new_table = NULL;
++  return AE_OK;
++}
++
++void *
++acpi_os_map_memory(acpi_physical_address phys, acpi_size size)
++{
++  int err;
++  mach_port_t device_master;
++  device_t mem_device;
++  mach_port_t memobj;
++  vm_address_t vaddr = 0;
++  uint32_t pa_offset = phys % sysconf(_SC_PAGE_SIZE);
++  uint32_t pa_start = phys - pa_offset;
++
++  size = round_page(size + pa_offset);
++
++  err = get_privileged_ports (0, &device_master);
++  if (err)
++    {
++      acpi_os_printf("Cannot get device master port");
++      return (void *)-1;
++    }
++
++  err = device_open (device_master, 0, "mem", &mem_device);
++  mach_port_deallocate (mach_task_self (), device_master);
++  if (err)
++    {
++      acpi_os_printf("device_open(mem)");
++      return (void *)-1;
++    }
++
++  err =
++    device_map (mem_device, VM_PROT_READ | VM_PROT_WRITE, pa_start, size, &memobj, 0);
++  mach_port_deallocate (mach_task_self (), mem_device);
++
++  if (!err)
++    {
++      err = vm_map (mach_task_self (), &vaddr, size, 0, 1,
++		    memobj, 0, 0,
++		    VM_PROT_READ | VM_PROT_WRITE,
++		    VM_PROT_READ | VM_PROT_WRITE,
++		    VM_INHERIT_SHARE);
++      mach_port_deallocate (mach_task_self (), memobj);
++    }
++
++  if (err)
++    {
++      acpi_os_printf("Can't map memory 0x%llx\n", phys);
++      return (void *)-1;
++    }
++
++  return (void *)(vaddr + pa_offset);
++}
++
++void
++acpi_os_unmap_memory(void *virt, acpi_size size)
++{
++  void *freeme = (void *)trunc_page(virt);
++  if (!freeme)
++    {
++      acpi_os_printf("Nothing to unmap\n");
++      return;
++    }
++  munmap(freeme, size + size);
++}
++
++acpi_status
++acpi_os_read_memory(acpi_physical_address phys_addr, u64 *value, u32 width)
++{
++  void *virt_addr;
++  unsigned int size = width / 8;
++  acpi_status err = AE_BAD_ADDRESS;
++
++  if (!value)
++    return err;
++
++  virt_addr = acpi_os_map_memory (phys_addr, size);
++  if (!virt_addr)
++    return err;
++
++  if (!acpi_os_read_iomem (virt_addr, value, width))
++    err = AE_OK;
++
++  acpi_os_unmap_memory (virt_addr, size);
++
++  return err;
++}
++
++acpi_status
++acpi_os_write_memory(acpi_physical_address phys_addr, u64 value, u32 width)
++{
++  void *virt_addr;
++  unsigned int size = width / 8;
++  acpi_status err = AE_OK;
++
++  virt_addr = acpi_os_map_memory (phys_addr, size);
++  if (!virt_addr)
++    return AE_BAD_ADDRESS;
++
++  switch (width)
++    {
++      case 8:
++        *((volatile u8 *)virt_addr) = (u8)value;
++        break;
++      case 16:
++        *((volatile u16 *)virt_addr) = (u16)value;
++        break;
++      case 32:
++        *((volatile u32 *)virt_addr) = (u32)value;
++        break;
++      case 64:
++        *((volatile u64 *)virt_addr) = value;
++        break;
++      default:
++        acpi_os_printf("ACPI: Bad write memory width\n");
++        err = AE_BAD_ADDRESS;
++        break;
++    }
++
++  acpi_os_unmap_memory (virt_addr, size);
++
++  return err;
++}
++
++acpi_status
++acpi_os_initialize(void)
++{
++  /* Avoid giving ioperm to the PCI cfg registers
++   * since pci-arbiter controls these
++   */
++
++  /* 0-0xcf7 */
++  if (ioperm(0, PCI_CFG1_START, 1))
++    {
++      acpi_os_printf("acpi: EPERM on ioperm 1\n");
++      return AE_ERROR;
++    }
++
++  /* 0xd00-0xffff */
++  if (ioperm(PCI_CFG1_END+1, 0x10000 - (PCI_CFG1_END+1), 1))
++    {
++      acpi_os_printf("acpi: EPERM on ioperm 2\n");
++      return AE_ERROR;
++    }
++
++  if (pci_init())
++    {
++      acpi_os_printf("acpi pci_init: Error realloc\n");
++      return AE_ERROR;
++    }
++
++  if (irqhelp_init())
++    {
++      acpi_os_printf("acpi irqhelp_init: failed\n");
++      // FIXME: When libirqhelp is fixed: return AE_ERROR;
++    }
++  return AE_OK;
++}
++
++acpi_status
++acpi_os_terminate(void)
++{
++  free(pci_devices);
++  acpi_unload_pci_bridges();
++  acpi_os_printf("Bye!\n");
++  return AE_OK;
++}
++
++acpi_status
++acpi_os_signal(u32 function, void *info)
++{
++  switch (function)
++    {
++      case ACPI_SIGNAL_FATAL:
++        acpi_os_printf("ACPI: Fatal opcode executed\n");
++        break;
++      case ACPI_SIGNAL_BREAKPOINT:
++        break;
++      default:
++        break;
++    }
++  return AE_OK;
++}
++
++acpi_status
++acpi_os_predefined_override(const struct acpi_predefined_names *init_val,
++                            acpi_string *new_val)
++{
++  if (!init_val || !new_val)
++    return AE_BAD_PARAMETER;
++
++  *new_val = 0;
++
++  return AE_OK;
++}
++
++void
++acpi_enter_sleep(int sleep_state)
++{
++  acpi_hw_legacy_sleep (sleep_state);
++}
++
++
++static acpi_status
++acpi_pci_link_count_all(struct acpi_resource *resource, void *context)
++{
++  int *count = (int *)context;
++
++  (*count)++;
++
++  return AE_OK;
++}
++
++static acpi_status
++acpi_pci_link_count_irq(struct acpi_resource *resource, void *context)
++{
++  int *count = (int *)context;
++
++  if (!resource->length)
++    return AE_OK;
++
++  switch (resource->type)
++    {
++      case ACPI_RESOURCE_TYPE_IRQ:
++        {
++          struct acpi_resource_irq *irq_resource = &resource->data.irq;
++          if (!irq_resource || !irq_resource->interrupt_count || !irq_resource->interrupts[0])
++            return AE_OK;
++          (*count)++;
++        }
++        break;
++      case ACPI_RESOURCE_TYPE_EXTENDED_IRQ:
++        {
++          struct acpi_resource_extended_irq *irq_resource = &resource->data.extended_irq;
++          if (!irq_resource || !irq_resource->interrupt_count || !irq_resource->interrupts[0])
++            return AE_OK;
++          (*count)++;
++        }
++        break;
++      default:
++        break;
++    }
++
++  return AE_OK;
++}
++
++static acpi_status
++acpi_pci_link_subset_last_irq(struct acpi_resource *resource, void *context)
++{
++  struct acpi_resource *res = (struct acpi_resource *)context;
++
++  switch (resource->type)
++    {
++      case ACPI_RESOURCE_TYPE_IRQ:
++        {
++          struct acpi_resource_irq *irq_resource = &resource->data.irq;
++          if (!irq_resource || !irq_resource->interrupt_count || !irq_resource->interrupts[0])
++            return AE_OK;
++          *res = *resource;
++          return AE_OK;
++        }
++        break;
++      case ACPI_RESOURCE_TYPE_EXTENDED_IRQ:
++        {
++          struct acpi_resource_extended_irq *irq_resource = &resource->data.extended_irq;
++          if (!irq_resource || !irq_resource->interrupt_count || !irq_resource->interrupts[0])
++            return AE_OK;
++          *res = *resource;
++          return AE_OK;
++        }
++        break;
++      default:
++        break;
++    }
++
++  return AE_OK;
++}
++
++static acpi_status
++acpi_pci_link_get_last_valid_irq(struct acpi_resource *resource, void *context)
++{
++  int *irq = (int *)context;
++
++  if (!resource->length)
++    {
++      acpi_os_printf("Empty resource\n");
++      return AE_OK;
++    }
++
++  switch (resource->type)
++    {
++      case ACPI_RESOURCE_TYPE_IRQ:
++        {
++          struct acpi_resource_irq *irq_resource = &resource->data.irq;
++          if (!irq_resource || !irq_resource->interrupt_count || !irq_resource->interrupts[0])
++            {
++              // no IRQ# bits set generally w/ _STA disabled
++              acpi_os_printf("Empty _CRS IRQ resource\n");
++              return AE_OK;
++            }
++          *irq = irq_resource->interrupts[0];
++        }
++        break;
++      case ACPI_RESOURCE_TYPE_EXTENDED_IRQ:
++        {
++          struct acpi_resource_extended_irq *irq_resource = &resource->data.extended_irq;
++          if (!irq_resource || !irq_resource->interrupt_count || !irq_resource->interrupts[0])
++            {
++              // extended IRQ descriptors should return at least 1 IRQ
++              acpi_os_printf("Empty _CRS EXT IRQ resource\n");
++              return AE_OK;
++            }
++          *irq = irq_resource->interrupts[0];
++        }
++        break;
++      case ACPI_RESOURCE_TYPE_END_TAG:
++        return AE_OK;
++        break;
++      default:
++        acpi_os_printf("Not IRQ resource\n");
++        return AE_OK;
++    }
++
++  acpi_os_printf("Found IRQ resource %d\n", *irq);
++  return AE_OK;
++}
++
++static int
++acpi_pci_get_device_pin(uint16_t bus, uint16_t dev, uint16_t func)
++{
++  struct acpi_pci_id pci_id = {
++    .segment = 0, .bus = bus, .device = dev, .function = func
++  };
++  u64 pci_pin;
++
++  /* cast to int is safe having read only 8 bits */
++  return (acpi_os_read_pci_configuration(&pci_id, PCI_INTERRUPT_PIN, &pci_pin, 8)
++	  ? -1
++	  : (int)pci_pin);
++}
++
++static int
++acpi_get_irq_from_handle(acpi_handle handle,
++			 uint16_t dev, uint16_t func, int pci_pin)
++{
++  struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
++  struct acpi_buffer srs_buffer = { ACPI_ALLOCATE_BUFFER, NULL };
++  struct acpi_pci_routing_table *entry;
++  struct acpi_resource *res;
++  int srs_count;
++
++  acpi_handle prt = NULL;
++  acpi_handle lnk = NULL;
++  acpi_status err = AE_OK;
++  u16 prt_dev, prt_func;
++
++  err = acpi_get_handle(handle, METHOD_NAME__PRT, &prt);
++  if (ACPI_FAILURE(err))
++    return -EIO;
++
++  err = acpi_evaluate_object(prt, NULL, NULL, &buffer);
++  if (ACPI_FAILURE(err))
++    return -EIO;
++
++  err = acpi_get_irq_routing_table(handle, &buffer);
++  if (ACPI_FAILURE(err))
++    return -EIO;
++
++  /* If pic_mode is undetermined, ACPI cannot determine pci irq */
++  if (BAD_PIC_MODE(pic_mode))
++    return -EIO;
++
++  entry = ACPI_CAST_PTR(struct acpi_pci_routing_table, ACPI_CAST_PTR(u8, buffer.pointer));
++  while (entry && (entry->length > 0))
++    {
++      /* Already applies to the bus of the device */
++      prt_dev = (entry->address >> 16) & 0xffff;
++      prt_func = entry->address & 0xffff;
++      if ((prt_dev == dev) && (prt_func == 0xffff)
++	  /* PCI configuration enumerates pin in use as 1..4 whereas libacpica uses 0..3 */
++	  && (entry->pin == (pci_pin - 1)))
++        {
++          if (entry->source[0])
++            {
++              int crs_count = 0;
++              int prs_count_irq = 0;
++              int prs_count_all = 0;
++              int irq = -1;
++
++              /* Dynamic:
++               * - source field specifies PCI interrupt LNK
++               * - source_index specifies which resource descriptor in
++               *   resource template of LNK to allocate this interrupt
++               */
++              err = acpi_get_handle(ACPI_ROOT_OBJECT, entry->source, &lnk);
++              if (ACPI_FAILURE(err))
++                return -EIO;
++
++              if (!lnk)
++                {
++                  acpi_os_printf("Error invalid lnk\n");
++                  return -EIO;
++                }
++
++              err = acpi_walk_resources(lnk, "_CRS", acpi_pci_link_count_irq, &crs_count);
++              if (ACPI_FAILURE(err) || !crs_count)
++                acpi_os_printf("Warning: missing _CRS\n");
++              acpi_walk_resources(lnk, "_PRS", acpi_pci_link_count_all, &prs_count_all);
++              err = acpi_walk_resources(lnk, "_PRS", acpi_pci_link_count_irq, &prs_count_irq);
++              if (ACPI_FAILURE(err))
++                {
++                  if (crs_count == 0)
++                    {
++                      acpi_os_printf("Error: missing _PRS when needed\n");
++                      return -EIO;
++                    }
++                }
++              if (crs_count > 0)
++                {
++                  irq = 0;
++                  err = acpi_walk_resources(lnk, "_CRS", acpi_pci_link_get_last_valid_irq, &irq);
++                  if (ACPI_FAILURE(err) || !irq)
++                    {
++                      acpi_os_printf("Error walk_resources _CRS\n");
++                      return -EIO;
++                    }
++
++                  err = acpi_get_current_resources(lnk, &srs_buffer);
++                  if (ACPI_FAILURE(err))
++                    {
++                      acpi_os_printf("Error getting _CRS\n");
++                      return -EIO;
++                    }
++
++                  err = acpi_set_current_resources(lnk, &srs_buffer);
++                  if (ACPI_FAILURE(err))
++                    {
++                      acpi_os_printf("Error setting _SRS\n");
++                      return -EIO;
++                    }
++                  acpi_os_printf("Final irq %d\n", irq);
++                  return irq;
++                }
++              else if (prs_count_irq > 0)
++                {
++                  irq = 0;
++                  err = acpi_walk_resources(lnk, "_PRS", acpi_pci_link_get_last_valid_irq, &irq);
++                  if (ACPI_FAILURE(err) || !irq)
++                    {
++                      acpi_os_printf("Error walk_resources _PRS\n");
++                      return -EIO;
++                    }
++
++                  if (irq > 16)
++                    {
++                      acpi_os_printf("Error IRQ > 16, not implemented\n");
++                      return -EIO;
++                    }
++
++                  /* Found a possible irq, but need to call _SRS to set it */
++
++                  /* IRQ resource + end tagged resource */
++                  srs_count = 2;
++
++                  res = (struct acpi_resource *)calloc(1, srs_count * sizeof(struct acpi_resource));
++
++                  err = acpi_walk_resources(lnk, "_PRS", acpi_pci_link_subset_last_irq, res);
++                  if (err)
++                    {
++                      acpi_os_printf("Error _PRS cannot be read\n");
++                      free(res);
++                      return -EIO;
++                    }
++
++                  /* Patch the _PRS to use for _SRS */
++                  srs_buffer.length = sizeof(struct acpi_resource) + 1;
++                  srs_buffer.pointer = res;
++
++                  switch (res->type)
++                    {
++                      case ACPI_RESOURCE_TYPE_IRQ:
++                        res->data.irq.interrupt_count = 1;
++                        res->data.irq.interrupts[0] = irq;
++                        break;
++                      case ACPI_RESOURCE_TYPE_EXTENDED_IRQ:
++                        res->data.extended_irq.interrupt_count = 1;
++                        res->data.extended_irq.interrupts[0] = irq;
++                        break;
++                    }
++
++                  res[1].type = ACPI_RESOURCE_TYPE_END_TAG;
++                  res[1].length = sizeof(struct acpi_resource);
++
++                  err = acpi_set_current_resources(lnk, &srs_buffer);
++                  if (ACPI_FAILURE(err))
++                    {
++                      acpi_os_printf("Error setting _SRS\n");
++                      free(res);
++                      return -EIO;
++                    }
++                  free(res);
++                  acpi_os_printf("Final irq %d\n", irq);
++                  return irq;
++                }
++              else
++                {
++                  acpi_os_printf("Error: _CRS has empty IRQ resources\n");
++                  return -EIO;
++                }
++            }
++          else
++            {
++              /* Static:
++               * - source field is zero
++               * - source_index specifies IRQ value hardwired to
++               *   interrupt inputs on controller
++               */
++              return entry->source_index;
++            }
++        }
++
++      entry = ACPI_ADD_PTR(struct acpi_pci_routing_table, entry, entry->length);
++    }
++
++  return -EIO;
++}
++
++static acpi_pci_bridge_t*
++acpi_find_pci_bridge(int bus)
++{
++  if (bus == 0)
++    return NULL;
++
++  acpi_pci_bridge_t* bridge = acpi_pci_bridges;
++
++  while (bridge != NULL)
++    {
++      if (bridge->down_bus == bus)
++	return bridge;
++
++      bridge = bridge->next;
++    }
++
++  return NULL;
++}
++
++int
++acpi_get_irq_number(uint16_t bus, uint16_t dev, uint16_t func)
++{
++  int pci_pin = acpi_pci_get_device_pin(bus, dev, func);
++  /* Fail if the device pin used is unknown (0) */
++  if (pci_pin <= 0)
++    return -EIO;
++
++  acpi_pci_bridge_t* bridge = acpi_find_pci_bridge(bus);
++
++  while (bridge != NULL)
++    {
++      int irq = acpi_get_irq_from_handle(bridge->handle, dev, func, pci_pin);
++      if (irq >= 0)
++	return irq;
++
++      /* Translate the downstream INTx to the upstream one */
++      pci_pin = ((pci_pin + dev) % 4);
++      bus = bridge->up_bus;
++      dev = bridge->dev;
++      func = bridge->func;
++      bridge = acpi_find_pci_bridge(bus);
++    }
++
++  acpi_handle handle;
++  acpi_status err = acpi_get_handle(ACPI_ROOT_OBJECT, "\\_SB.PCI0", &handle);
++  if (ACPI_FAILURE(err))
++    return -EIO;
++
++  return acpi_get_irq_from_handle(handle, dev, func, pci_pin);
++}
++
++/* Fetch the active interrupt mode from GNU mach */
++static error_t
++acpi_required_pic_mode (void)
++{
++  mach_port_t devices = MACH_PORT_NULL, irq;
++  mach_msg_type_number_t cnt = 0;
++
++  error_t err = get_privileged_ports(NULL, &devices);
++  if (err)
++    return err;
++
++  if (devices == MACH_PORT_NULL)
++    return ENODEV;
++
++  err = device_open(devices, D_READ, "irq", &irq);
++  mach_port_deallocate (mach_task_self (), devices);
++  if (!err)
++    {
++      /* Determine if the IRQGETPICMODE feature is available in the
++	 running kernel by specifying a NULL array for 'status'. If
++	 the feature is available then MIG_ARRAY_TOO_LARGE is returned
++	 as the returned status cannot fit in the result.
++      */
++      if (device_get_status(irq, IRQGETPICMODE, NULL, &cnt)
++       != MIG_ARRAY_TOO_LARGE)
++        err = ENOSYS;
++      else
++        {
++          cnt = 1;
++          err = device_get_status(irq, IRQGETPICMODE, &pic_mode, &cnt);
++        }
++
++      device_close(irq);
++    }
++
++  return err;
++}
++
++static error_t
++acpi_set_pic_mode (void)
++{
++  struct acpi_object_list arg;
++  union acpi_object obj;
++
++  if (BAD_PIC_MODE(pic_mode))
++    return EINVAL;
++
++  obj.type = ACPI_TYPE_INTEGER;
++  obj.integer.value = pic_mode;
++
++  arg.count = 1;
++  arg.pointer = &obj;
++
++  acpi_handle handle = ACPI_ROOT_OBJECT;
++  acpi_status rv = acpi_evaluate_object(handle, "\\_PIC", &arg, NULL);
++
++  /* A failure of AE_NOT_FOUND means the \_PIC method is not supported.
++     The default for the system in this case is ACPI_PICMODE_PIC, so
++     it is only a concern if an attempt is made to set a different mode.
++  */
++  return (ACPI_FAILURE(rv)
++	  && (rv != AE_NOT_FOUND || (pic_mode != ACPI_PICMODE_PIC))
++	  ? EIO
++	  : 0);
++}
++
++static error_t
++acpi_configure_pic_mode (void)
++{
++  error_t err = acpi_required_pic_mode ();
++
++  if (err)
++    {
++      acpi_os_printf("Cannot determine PIC mode: %s\n", strerror(err));
++      return err;
++    }
++
++  err = acpi_set_pic_mode ();
++  if (err)
++    acpi_os_printf("Failed to set ACPI PIC mode: %s\n", strerror(err));
++
++  return err;
++}
++
++static acpi_status
++acpi_pci_bridge_add(acpi_handle handle,
++		    uint8_t up_bus, uint8_t down_bus,
++		    uint16_t dev, uint16_t func)
++{
++  acpi_pci_bridge_t* bridge =
++    (acpi_pci_bridge_t*)malloc(sizeof(acpi_pci_bridge_t));
++
++  if (bridge == NULL)
++    return AE_NO_MEMORY;
++
++  bridge->handle = handle;
++  bridge->up_bus = up_bus;
++  bridge->down_bus = down_bus;
++  bridge->dev = dev;
++  bridge->func = func;
++  bridge->next = acpi_pci_bridges;
++  acpi_pci_bridges = bridge;
++
++  return AE_OK;
++}
++
++struct acpi_find_bus_context
++{
++  int     is_bridge; /* Is this level a bridge or not */
++  uint8_t down_bus;  /* The downstream bus num if a bridge */
++  struct  acpi_find_bus_context* parent;
++};
++
++static acpi_status
++acpi_find_busses_down(acpi_handle handle, uint32_t level,
++		      void *context_arg, void **status)
++{
++  struct acpi_find_bus_context** context =
++    (struct acpi_find_bus_context**)context_arg;
++
++  struct acpi_device_info *devinfo;
++  acpi_status rv = acpi_get_object_info(handle, &devinfo);
++
++  if (ACPI_FAILURE(rv))
++    return rv;
++
++  struct acpi_find_bus_context* device_context =
++    (struct acpi_find_bus_context*)malloc(sizeof(struct acpi_find_bus_context));
++
++  if (device_context == NULL)
++    return AE_NO_MEMORY;
++
++  device_context->is_bridge = 0;
++  device_context->down_bus = 0;
++  device_context->parent = *context;
++  *context = device_context;
++
++  if (devinfo->flags & ACPI_PCI_ROOT_BRIDGE)
++    {
++      device_context->is_bridge = 1;
++    }
++  else if (device_context->parent->is_bridge && (devinfo->valid & ACPI_VALID_ADR))
++    {
++      uint8_t bus = device_context->parent->down_bus;
++      uint32_t devfunc = ACPI_LODWORD(devinfo->address);
++      uint16_t dev = ACPI_HIWORD(devfunc);
++      uint16_t func = ACPI_LOWORD(devfunc);
++
++      if (func <= PCI_MAX_FUNC_ID && dev <= PCI_MAX_DEV_ID)
++	{
++	  struct acpi_pci_id pci_id =
++	    {
++	      .segment = 0, .bus = bus, .device = dev, .function = func
++	    };
++	  u64 val;
++
++	  /* Ignore ACPI entries that refer to absent devices. */
++	  if (acpi_os_read_pci_configuration(&pci_id, PCI_HDR_TYPE_REG, &val, 8))
++	    goto exit;
++
++	  {
++	    /* Only 8 bits was read from the PCI configuration so cast OK. */
++	    uint8_t hdrType = (uint8_t)val;
++	    uint8_t mask = PCI_MULTI_FUNC_MASK;
++
++	    if ((hdrType & ~mask) != PCI_HDR_TYPE_PPB)
++	      goto exit;
++	  }
++
++	  if (acpi_os_read_pci_configuration(&pci_id, PCI_PPB_SECBUS_REG, &val, 8))
++	    {
++	      acpi_os_printf("Failed to find secondary bus for: %x:%x:%x\n",
++			     bus, dev, func);
++	      rv = AE_IO_ERROR;
++	      goto exit;
++	    }
++
++	  /* Only 8 bits was read from the PCI configuration so cast OK. */
++	  device_context->down_bus = (uint8_t)val;
++	  device_context->is_bridge = 1;
++
++	  rv = acpi_pci_bridge_add(handle, bus, device_context->down_bus, dev, func);
++	}
++    }
++
++ exit:
++  ACPI_FREE(devinfo);
++
++  return rv;
++}
++
++static acpi_status
++acpi_find_busses_up(acpi_handle handle, uint32_t level,
++		    void *context_arg, void **status)
++{
++  struct acpi_find_bus_context** context =
++    (struct acpi_find_bus_context**)context_arg;
++
++  struct acpi_find_bus_context* entry = *context;
++  *context = entry->parent;
++
++  free(entry);
++
++  return AE_OK;
++}
++
++static acpi_status
++acpi_load_pci_bridges(void)
++{
++  struct acpi_find_bus_context head_context =
++  {
++    .is_bridge = 0,
++    .down_bus = 0,
++    .parent = NULL
++  };
++
++  struct acpi_find_bus_context* context = &head_context;
++
++  acpi_status rv = acpi_walk_namespace
++    (ACPI_TYPE_DEVICE, ACPI_ROOT_OBJECT, UINT_MAX,
++     acpi_find_busses_down, acpi_find_busses_up, &context, NULL);
++
++  /* There should only be anything to free here in error cases */
++  while (context != &head_context)
++    {
++      struct acpi_find_bus_context* entry = context;
++      context = context->parent;
++
++      free(entry);
++    }
++
++  return rv;
++}
++
++void acpi_init(void)
++{
++  acpi_status err;
++
++  // Hack to increase verbosity except parsing AML
++  //acpi_dbg_level = (ACPI_LV_ALL) & ~(ACPI_LV_FUNCTIONS);
++
++  err = acpi_initialize_tables (initial_tables, ACPI_MAX_TABLES, 0);
++  if (ACPI_FAILURE (err))
++    goto die;
++
++  err = acpi_initialize_subsystem ();
++  if (ACPI_FAILURE (err))
++    goto die;
++
++  err = acpi_reallocate_root_table ();
++  if (ACPI_FAILURE (err))
++    goto die;
++
++  err = acpi_load_tables ();
++  if (ACPI_FAILURE (err))
++    goto die;
++
++  err = acpi_load_pci_bridges();
++  if (ACPI_FAILURE (err))
++    goto die;
++
++  /* Ignore return value for old gnumach without irq status */
++  acpi_configure_pic_mode();
++
++  err = acpi_enable_subsystem (ACPI_FULL_INITIALIZATION);
++  if (ACPI_FAILURE (err))
++    goto die;
++
++  err = acpi_initialize_objects (ACPI_FULL_INITIALIZATION);
++  if (ACPI_FAILURE (err))
++    goto die;
++
++  acpi_os_printf("PASS!\n");
++  return;
++die:
++  acpi_os_printf("OUCH!\n");
++}
+--- /dev/null
++++ b/include/acpi/acpi_init.h
+@@ -0,0 +1,11 @@
++// SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0
++#ifndef ACPI_INIT_H_
++#define ACPI_INIT_H_
++
++#include <stdint.h>
++
++void acpi_enter_sleep(int sleep_state);
++int acpi_get_irq_number(uint16_t bus, uint16_t dev, uint16_t func);
++void acpi_init(void);
++
++#endif

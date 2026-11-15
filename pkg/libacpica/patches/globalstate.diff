@@ -1,0 +1,12 @@
+--- /dev/null
++++ b/global_state.c
+@@ -0,0 +1,9 @@
++// SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0
++
++#define EXPORT_ACPI_INTERFACES
++#define DEFINE_ACPI_GLOBALS
++#include <acpi/acpi.h>
++
++#include "accommon.h"
++#include "acglobal.h"
++#include "utglobal.c"

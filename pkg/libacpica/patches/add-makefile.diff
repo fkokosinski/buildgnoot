@@ -1,0 +1,226 @@
+diff --git a/Makefile b/Makefile
+new file mode 100644
+index 0000000..e9c2828
+--- /dev/null
++++ b/Makefile
+@@ -0,0 +1,220 @@
++# Copyright (C) 2022 Free Software Foundation, Inc.
++#
++# This is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; version 2, or (at your option)
++# any later version.
++#
++# This makefile is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with the GNU Hurd; see the file COPYING.  If not, write to
++# the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
++
++# __KERNEL__ is needed:
++# even though we are in userspace, we are acting like a kernel
++# from the point of view of ACPICA
++CC ?= gcc
++AR ?= ar
++
++PREFIX ?= /usr/local
++libdir ?= $(PREFIX)/lib
++
++CFLAGS ?= -g -O2
++CFLAGS += -Wall -D__KERNEL__ \
++	-std=gnu99 -fgnu89-inline \
++	-fno-strict-aliasing \
++	-fPIC \
++	-D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 \
++	-I./drivers/acpi/acpica \
++	-I./include \
++	-I./include/acpi/platform \
++	-I$(PREFIX)/usr/include
++
++BASE = ./drivers/acpi/acpica
++
++LDLIBS = -lpciaccess -lirqhelp -lpthread
++
++SRCS =	global_state.c 		\
++	acpi_init.c		\
++	$(BASE)/dsargs.c	\
++	$(BASE)/dscontrol.c	\
++	$(BASE)/dsfield.c	\
++	$(BASE)/dsinit.c	\
++	$(BASE)/dsmethod.c	\
++	$(BASE)/dsmthdat.c	\
++	$(BASE)/dsobject.c	\
++	$(BASE)/dsopcode.c	\
++	$(BASE)/dspkginit.c	\
++	$(BASE)/dsutils.c	\
++	$(BASE)/dswexec.c	\
++	$(BASE)/dswload.c	\
++	$(BASE)/dswload2.c	\
++	$(BASE)/dswscope.c	\
++	$(BASE)/dswstate.c	\
++	$(BASE)/evevent.c	\
++	$(BASE)/evgpe.c		\
++	$(BASE)/evgpeblk.c	\
++	$(BASE)/evgpeinit.c	\
++	$(BASE)/evgpeutil.c	\
++	$(BASE)/evglock.c	\
++	$(BASE)/evhandler.c	\
++	$(BASE)/evmisc.c	\
++	$(BASE)/evregion.c	\
++	$(BASE)/evrgnini.c	\
++	$(BASE)/evsci.c		\
++	$(BASE)/evxface.c	\
++	$(BASE)/evxfevnt.c	\
++	$(BASE)/evxfgpe.c	\
++	$(BASE)/evxfregn.c	\
++	$(BASE)/exconcat.c	\
++	$(BASE)/exconfig.c	\
++	$(BASE)/exconvrt.c	\
++	$(BASE)/excreate.c	\
++	$(BASE)/exdebug.c	\
++	$(BASE)/exdump.c	\
++	$(BASE)/exfield.c	\
++	$(BASE)/exfldio.c	\
++	$(BASE)/exmisc.c	\
++	$(BASE)/exmutex.c	\
++	$(BASE)/exnames.c	\
++	$(BASE)/exoparg1.c	\
++	$(BASE)/exoparg2.c	\
++	$(BASE)/exoparg3.c	\
++	$(BASE)/exoparg6.c	\
++	$(BASE)/exprep.c	\
++	$(BASE)/exregion.c	\
++	$(BASE)/exresnte.c	\
++	$(BASE)/exresolv.c	\
++	$(BASE)/exresop.c	\
++	$(BASE)/exserial.c	\
++	$(BASE)/exstore.c	\
++	$(BASE)/exstoren.c	\
++	$(BASE)/exstorob.c	\
++	$(BASE)/exsystem.c	\
++	$(BASE)/extrace.c	\
++	$(BASE)/exutils.c	\
++	$(BASE)/hwacpi.c	\
++	$(BASE)/hwesleep.c	\
++	$(BASE)/hwgpe.c		\
++	$(BASE)/hwpci.c		\
++	$(BASE)/hwregs.c	\
++	$(BASE)/hwsleep.c	\
++	$(BASE)/hwvalid.c	\
++	$(BASE)/hwxface.c	\
++	$(BASE)/hwxfsleep.c	\
++	$(BASE)/nsaccess.c	\
++	$(BASE)/nsalloc.c	\
++	$(BASE)/nsarguments.c	\
++	$(BASE)/nsconvert.c	\
++	$(BASE)/nsdump.c	\
++	$(BASE)/nseval.c	\
++	$(BASE)/nsinit.c	\
++	$(BASE)/nsload.c	\
++	$(BASE)/nsnames.c	\
++	$(BASE)/nsobject.c	\
++	$(BASE)/nsparse.c	\
++	$(BASE)/nspredef.c	\
++	$(BASE)/nsprepkg.c	\
++	$(BASE)/nsrepair.c	\
++	$(BASE)/nsrepair2.c	\
++	$(BASE)/nssearch.c	\
++	$(BASE)/nsutils.c	\
++	$(BASE)/nswalk.c	\
++	$(BASE)/nsxfeval.c	\
++	$(BASE)/nsxfname.c	\
++	$(BASE)/nsxfobj.c	\
++	$(BASE)/psargs.c	\
++	$(BASE)/psloop.c	\
++	$(BASE)/psobject.c	\
++	$(BASE)/psopcode.c	\
++	$(BASE)/psopinfo.c	\
++	$(BASE)/psparse.c	\
++	$(BASE)/psscope.c	\
++	$(BASE)/pstree.c	\
++	$(BASE)/psutils.c	\
++	$(BASE)/pswalk.c	\
++	$(BASE)/psxface.c	\
++	$(BASE)/rsaddr.c	\
++	$(BASE)/rscalc.c	\
++	$(BASE)/rscreate.c	\
++	$(BASE)/rsdumpinfo.c	\
++	$(BASE)/rsinfo.c	\
++	$(BASE)/rsio.c		\
++	$(BASE)/rsirq.c		\
++	$(BASE)/rslist.c	\
++	$(BASE)/rsmemory.c	\
++	$(BASE)/rsmisc.c	\
++	$(BASE)/rsserial.c	\
++	$(BASE)/rsutils.c	\
++	$(BASE)/rsxface.c	\
++	$(BASE)/tbdata.c	\
++	$(BASE)/tbfadt.c	\
++	$(BASE)/tbfind.c	\
++	$(BASE)/tbinstal.c	\
++	$(BASE)/tbprint.c	\
++	$(BASE)/tbutils.c	\
++	$(BASE)/tbxface.c	\
++	$(BASE)/tbxfload.c	\
++	$(BASE)/tbxfroot.c	\
++	$(BASE)/utaddress.c	\
++	$(BASE)/utalloc.c	\
++	$(BASE)/utascii.c	\
++	$(BASE)/utbuffer.c	\
++	$(BASE)/utcache.c	\
++	$(BASE)/utcopy.c	\
++	$(BASE)/utexcep.c	\
++	$(BASE)/utdebug.c	\
++	$(BASE)/utdecode.c	\
++	$(BASE)/utdelete.c	\
++	$(BASE)/uterror.c	\
++	$(BASE)/uteval.c	\
++	$(BASE)/uthex.c		\
++	$(BASE)/utids.c		\
++	$(BASE)/utinit.c	\
++	$(BASE)/utlock.c	\
++	$(BASE)/utmath.c	\
++	$(BASE)/utmisc.c	\
++	$(BASE)/utmutex.c	\
++	$(BASE)/utnonansi.c	\
++	$(BASE)/utobject.c	\
++	$(BASE)/utosi.c		\
++	$(BASE)/utownerid.c	\
++	$(BASE)/utpredef.c	\
++	$(BASE)/utresdecode.c	\
++	$(BASE)/utresrc.c	\
++	$(BASE)/utstate.c	\
++	$(BASE)/utstring.c	\
++	$(BASE)/utstrsuppt.c	\
++	$(BASE)/utstrtoul64.c	\
++	$(BASE)/utxface.c	\
++	$(BASE)/utxfinit.c	\
++	$(BASE)/utxferror.c	\
++	$(BASE)/utxfmutex.c	\
++
++
++OBJS = $(SRCS:.c=.o)
++
++all: libacpica.a libacpica.so.0
++	@echo Done
++
++libacpica.a: $(OBJS)
++	ar crs $@ $(OBJS)
++
++libacpica.so.0: $(OBJS)
++	$(CC) $(LDFLAGS) -shared -Wl,-soname=$@ $(OBJS) -o $@ $(LDLIBS)
++
++clean:
++	rm -f *.o $(BASE)/*.o libacpica.a libacpica.so*
++
++install:
++	install -d $(DESTDIR)$(PREFIX)/include/acpi/platform
++	install -t $(DESTDIR)$(PREFIX)/include/acpi/platform include/acpi/platform/*.h
++	install -t $(DESTDIR)$(PREFIX)/include/acpi include/acpi/*.h
++	install -d $(DESTDIR)$(libdir)
++	install libacpica.a $(DESTDIR)$(libdir)
++	install libacpica.so.0 $(DESTDIR)$(libdir)
++	ln -sf libacpica.so.0 $(DESTDIR)$(libdir)/libacpica.so

@@ -1,0 +1,508 @@
+Add acgnu.h and acgnuex.h
+--- /dev/null
++++ b/include/acpi/platform/acgnu.h
+@@ -0,0 +1,159 @@
++#ifndef __ACGNU_H__
++#define __ACGNU_H__
++
++/* Common (in-kernel/user-space) ACPICA configuration */
++
++#define ACPI_USE_SYSTEM_CLIBRARY
++#define ACPI_USE_DO_WHILE_0
++#define ACPI_IGNORE_PACKAGE_RESOLUTION_ERRORS
++#define ACPI_LIBRARY
++
++#ifdef __KERNEL__
++
++#define ACPI_USE_SYSTEM_INTTYPES
++#define ACPI_USE_GPE_POLLING
++
++/* Kernel specific ACPICA configuration */
++
++#define ACPI_REDUCED_HARDWARE 0
++
++#ifdef CONFIG_ACPI_DEBUGGER
++#define ACPI_DEBUGGER
++#endif
++
++#ifdef CONFIG_ACPI_DEBUG
++#define ACPI_MUTEX_DEBUG
++#endif
++
++#include <semaphore.h>
++#include <pthread.h>
++#include <stdint.h>
++#include <malloc.h>
++#include <string.h>
++#include <ctype.h>
++typedef uint8_t u8;
++typedef uint16_t u16;
++typedef uint32_t u32;
++typedef uint64_t u64;
++typedef int8_t s8;
++typedef int16_t s16;
++typedef int32_t s32;
++typedef int64_t s64;
++
++#define ACPI_INIT_FUNCTION
++
++#ifndef CONFIG_ACPI
++
++#undef ACPI_NO_MEM_ALLOCATIONS
++#undef ACPI_NO_ERROR_MESSAGES
++#define ACPI_DEBUG_OUTPUT
++
++#define ACPI_MEM_MAPPING	struct acpi_mem_mapping
++
++#endif				/* CONFIG_ACPI */
++
++/* Host-dependent types and defines for in-kernel ACPICA */
++
++#if INTPTR_MAX == 9223372036854775807L
++#define ACPI_MACHINE_WIDTH          64
++#else
++#define ACPI_MACHINE_WIDTH          32
++#endif
++
++#define ACPI_USE_NATIVE_DIVIDE
++#define ACPI_USE_NATIVE_MATH64
++#define ACPI_EXPORT_SYMBOL(symbol)
++
++#define acpi_semaphore                      sem_t*
++#define acpi_spinlock                       sem_t*
++#define acpi_cpu_flags                      unsigned long
++#define acpi_cache_t                        struct acpi_memory_list
++
++/* Use native version of acpi_os_allocate_zeroed */
++
++#define USE_NATIVE_ALLOCATE_ZEROED
++
++/*
++ * Overrides for in-kernel ACPICA
++ */
++#define ACPI_USE_ALTERNATE_PROTOTYPE_acpi_os_initialize
++#define ACPI_USE_ALTERNATE_PROTOTYPE_acpi_os_terminate
++#define ACPI_USE_ALTERNATE_PROTOTYPE_acpi_os_allocate
++#define ACPI_USE_ALTERNATE_PROTOTYPE_acpi_os_allocate_zeroed
++#define ACPI_USE_ALTERNATE_PROTOTYPE_acpi_os_free
++#define ACPI_USE_ALTERNATE_PROTOTYPE_acpi_os_get_thread_id
++#define ACPI_USE_ALTERNATE_PROTOTYPE_acpi_os_create_lock
++
++/*
++ * OSL interfaces used by debugger/disassembler
++ */
++#define ACPI_USE_ALTERNATE_PROTOTYPE_acpi_os_readable
++#define ACPI_USE_ALTERNATE_PROTOTYPE_acpi_os_writable
++#define ACPI_USE_ALTERNATE_PROTOTYPE_acpi_os_initialize_debugger
++#define ACPI_USE_ALTERNATE_PROTOTYPE_acpi_os_terminate_debugger
++
++/*
++ * OSL interfaces used by utilities
++ */
++#define ACPI_USE_ALTERNATE_PROTOTYPE_acpi_os_redirect_output
++#define ACPI_USE_ALTERNATE_PROTOTYPE_acpi_os_get_table_by_name
++#define ACPI_USE_ALTERNATE_PROTOTYPE_acpi_os_get_table_by_index
++#define ACPI_USE_ALTERNATE_PROTOTYPE_acpi_os_get_table_by_address
++#define ACPI_USE_ALTERNATE_PROTOTYPE_acpi_os_open_directory
++#define ACPI_USE_ALTERNATE_PROTOTYPE_acpi_os_get_next_filename
++#define ACPI_USE_ALTERNATE_PROTOTYPE_acpi_os_close_directory
++
++#define ACPI_MSG_ERROR          "ACPI Error: "
++#define ACPI_MSG_EXCEPTION      "ACPI Exception: "
++#define ACPI_MSG_WARNING        "ACPI Warning: "
++#define ACPI_MSG_INFO           "ACPI: "
++
++#define ACPI_MSG_BIOS_ERROR     "ACPI BIOS Error (bug): "
++#define ACPI_MSG_BIOS_WARNING   "ACPI BIOS Warning (bug): "
++
++/*
++ * Use designated initializers for function pointer structs.
++ */
++#define ACPI_STRUCT_INIT(field, value)  .field = value
++
++#else				/* !__KERNEL__ */
++
++#define ACPI_USE_STANDARD_HEADERS
++
++#ifdef ACPI_USE_STANDARD_HEADERS
++#include <unistd.h>
++#endif
++
++/* Define/disable kernel-specific declarators */
++
++#ifndef __init
++#define __init
++#endif
++#ifndef __iomem
++#define __iomem
++#endif
++
++/* Host-dependent types and defines for user-space ACPICA */
++
++#define ACPI_FLUSH_CPU_CACHE()
++#define ACPI_CAST_PTHREAD_T(pthread) ((acpi_thread_id) (pthread))
++
++#if INTPTR_MAX == 9223372036854775807L
++#define ACPI_MACHINE_WIDTH          64
++#define COMPILER_DEPENDENT_INT64    long
++#define COMPILER_DEPENDENT_UINT64   unsigned long
++#else
++#define ACPI_MACHINE_WIDTH          32
++#define COMPILER_DEPENDENT_INT64    long long
++#define COMPILER_DEPENDENT_UINT64   unsigned long long
++#define ACPI_USE_NATIVE_DIVIDE
++#define ACPI_USE_NATIVE_MATH64
++#endif
++
++#ifndef __cdecl
++#define __cdecl
++#endif
++
++#endif				/* __KERNEL__ */
++
++#endif				/* __ACGNU_H__ */
+--- /dev/null
++++ b/include/acpi/platform/acgnuex.h
+@@ -0,0 +1,342 @@
++// SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0
++
++#ifndef __ACGNUEX_H__
++#define __ACGNUEX_H__
++
++#include <acpi/platform/acgnu.h>
++
++#ifdef __KERNEL__
++
++#define ACPI_USE_LOCAL_CACHE
++
++/*
++ * Overrides for in-kernel ACPICA
++ */
++acpi_status ACPI_INIT_FUNCTION acpi_os_initialize(void);
++acpi_status acpi_os_terminate(void);
++void acpi_os_printf(const char *format, ...);
++struct pci_device;
++struct pci_device *lookup_pci_dev(struct acpi_pci_id *pci_id);
++
++static inline void *acpi_os_allocate(acpi_size size)
++{
++	return (void *)malloc (size);
++}
++
++static inline void *acpi_os_allocate_zeroed(acpi_size size)
++{
++	return (void *)calloc (1, size);
++}
++
++static inline void acpi_os_free(void *memory)
++{
++	free (memory);
++}
++
++static inline acpi_thread_id acpi_os_get_thread_id(void)
++{
++	return 1;
++}
++
++static inline u8 acpi_os_readable(void *pointer, acpi_size length)
++{
++	return TRUE;
++}
++
++static inline acpi_status acpi_os_initialize_debugger(void)
++{
++	return 0;
++}
++
++static inline void acpi_os_terminate_debugger(void)
++{
++	return;
++}
++
++#include <stdio.h>
++#include <sys/io.h>
++#include <sys/time.h>
++#include <stddef.h>
++#include <string.h>
++#include <ctype.h>
++#include <assert.h>
++#include <errno.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <fcntl.h>
++#include <unistd.h>
++#include <stdarg.h>
++#include <limits.h>
++#include <hurd.h>
++#include <pciaccess.h>
++#include <hurd/irqhelp.h>
++
++#define ACPI_MAX_TABLES 128
++#define ACPI_MAX_GSIS 64
++
++static struct handler {
++  struct irq *irqhelp;
++} handlers[ACPI_MAX_GSIS] = {0};
++
++static inline acpi_status
++acpi_os_enter_sleep(u8 sleep_state, u32 pm1a, u32 pm1b)
++{
++  return 0;
++}
++
++static inline acpi_status
++acpi_os_create_lock(acpi_spinlock *lockp)
++{
++  return 0;
++}
++
++static inline acpi_cpu_flags
++acpi_os_acquire_lock(acpi_spinlock lockp)
++{
++  return 1;
++}
++
++static inline void
++acpi_os_release_lock(acpi_spinlock lockp, acpi_cpu_flags flags)
++{
++}
++
++static inline void
++acpi_os_delete_lock(acpi_spinlock lockp)
++{
++}
++
++static inline acpi_status
++acpi_os_create_semaphore(u32 max_units, u32 initial_units, acpi_semaphore * handle)
++{
++  return 0;
++}
++
++static inline acpi_status
++acpi_os_delete_semaphore(acpi_semaphore handle)
++{
++  return 0;
++}
++
++static inline acpi_status
++acpi_os_wait_semaphore(acpi_semaphore handle, u32 units, u16 timeout)
++{
++  return 0;
++}
++
++static inline acpi_status
++acpi_os_signal_semaphore(acpi_semaphore handle, u32 units)
++{
++  return 0;
++}
++
++/* Supposed to be 64 bit free-running
++ * monotonic timer with 100ns granularity
++ */
++static inline u64
++acpi_os_get_timer(void)
++{
++  struct timespec now;
++
++  clock_gettime(CLOCK_MONOTONIC, &now);
++  return (u64)((u64)now.tv_sec * 10000000 + (now.tv_nsec / 100));
++}
++
++static inline acpi_status
++acpi_os_read_iomem(void *virt_addr, u64 *value, u32 width)
++{
++  switch (width)
++    {
++      case 8:
++        *(u8 *) value = *((volatile u8 *)virt_addr);
++        break;
++      case 16:
++        *(u16 *) value = *((volatile u16 *)virt_addr);
++        break;
++      case 32:
++        *(u32 *) value = *((volatile u32 *)virt_addr);
++        break;
++      case 64:
++        *(u64 *) value = *((volatile u64 *)virt_addr);
++        break;
++      default:
++        return 1;
++    }
++  return 0;
++}
++
++static inline void
++acpi_os_sleep(u64 ms)
++{
++  usleep(1000 * ms);
++}
++
++static inline void
++acpi_os_stall(u32 us)
++{
++  usleep(us);
++}
++
++static inline void
++acpi_os_wait_events_complete(void)
++{
++  return;
++}
++
++static inline acpi_status
++acpi_os_read_port(acpi_io_address port, u32 *value, u32 width)
++{
++  if (!value)
++    return 1;
++
++  switch (width)
++    {
++      case 8:
++        *((u8 *)value) = inb(port);
++        return 0;
++      case 16:
++        *((u16 *)value) = inw(port);
++        return 0;
++      case 32:
++        *((u32 *)value) = inl(port);
++        return 0;
++      default:
++        acpi_os_printf("ACPI: read port invalid width\n");
++        return 1;
++    }
++  return 1;
++}
++
++static inline acpi_status
++acpi_os_write_port(acpi_io_address port, u32 value, u32 width)
++{
++  switch (width)
++    {
++      case 8:
++        outb(value, port);
++        return 0;
++      case 16:
++        outw(value, port);
++        return 0;
++      case 32:
++        outl(value, port);
++        return 0;
++      default:
++        acpi_os_printf("ACPI: Bad write port width\n");
++        return 1;
++    }
++
++  return 1;
++}
++
++static inline acpi_status
++acpi_os_install_interrupt_handler(u32 gsi, acpi_osd_handler handler,
++          void *context)
++{
++  assert(gsi < ACPI_MAX_GSIS);
++  pthread_t irq_loop;
++  int err;
++
++  if (handlers[gsi].irqhelp)
++    irqhelp_remove_interrupt_handler (handlers[gsi].irqhelp);
++  handlers[gsi].irqhelp = irqhelp_install_interrupt_handler (gsi, -1, -1, -1, (void *)(void (*))handler, context);
++
++  err = pthread_create (&irq_loop, NULL, irqhelp_server_loop, handlers[gsi].irqhelp);
++  if (err)
++    {
++      acpi_os_printf ("ACPI: Cannot create pthread for interrupt handler gsi=%d\n", gsi);
++      irqhelp_remove_interrupt_handler (handlers[gsi].irqhelp);
++      handlers[gsi].irqhelp = NULL;
++      return 1;
++    }
++  pthread_detach (irq_loop);
++  return 0;
++}
++
++static inline acpi_status
++acpi_os_remove_interrupt_handler(u32 gsi, acpi_osd_handler handler)
++{
++  int err = irqhelp_remove_interrupt_handler (handlers[gsi].irqhelp);
++  if (err)
++    {
++      acpi_os_printf ("ACPI: Cannot deregister interrupt handler gsi=%d\n", gsi);
++      return 1;
++    }
++  handlers[gsi].irqhelp = NULL;
++  return 0;
++}
++
++static inline acpi_status
++acpi_os_read_pci_configuration(struct acpi_pci_id * pci_id, u32 reg,
++             u64 *value, u32 bit_width)
++{
++  int i, err = 0;
++  uint8_t buf[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
++  struct pci_device *dev;
++  u64 temp = 0;
++  u32 bytes = bit_width / 8;
++  pciaddr_t bytes_read = 0;
++
++  if (bytes > 8)
++    {
++      acpi_os_printf("acpi: Can't read more than 8 pci bytes\n");
++      return 1;
++    }
++
++  dev = lookup_pci_dev(pci_id);
++  if (!dev)
++    return 1;
++
++  pci_device_cfg_read(dev, buf, reg, bytes, &bytes_read);
++  if (bytes_read < bytes)
++    {
++      acpi_os_printf("acpi: pci short read\n");
++      err = 1;
++    }
++
++  /* Read buffer from LE */
++  for (i = 0; i < bytes; i++)
++    temp |= buf[i] << (8 * i);
++
++  *value = temp;
++
++  return err;
++}
++
++static inline acpi_status
++acpi_os_write_pci_configuration(struct acpi_pci_id * pci_id, u32 reg,
++        u64 value, u32 bit_width)
++{
++  int i, err = 0;
++  uint8_t buf[8] = {0};
++  struct pci_device *dev;
++  u32 bytes = bit_width / 8;
++  pciaddr_t bytes_written = 0;
++
++  if (bytes > 8)
++    {
++      acpi_os_printf("acpi: Can't write more than 8 pci bytes\n");
++      return 1;
++    }
++
++  dev = lookup_pci_dev(pci_id);
++  if (!dev)
++    return 1;
++
++  /* Encode value as LE buffer */
++  for (i = 0; i < bytes; i++)
++    buf[i] = (value >> (8 * i)) & 0xff;
++
++  pci_device_cfg_write(dev, buf, reg, bytes, &bytes_written);
++  if (bytes_written < bytes)
++    {
++      acpi_os_printf("acpi: pci short write\n");
++      err = 1;
++    }
++
++  return err;
++}
++
++#endif				/* __KERNEL__ */
++
++#endif				/* __ACGNUEX_H__ */
