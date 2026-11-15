@@ -96,6 +96,16 @@ define bg-pkg-patches
 $(call bg-pkg-getprop,$(1),PATCHES)
 endef
 
+# bg-pkg-env - queries package environment
+#
+# Inputs:
+#  - $(1): package name; can be omitted if used within an $(eval $(call ...))
+#
+# Output: package environment
+define bg-pkg-env
+$(call bg-pkg-getprop,$(1),ENV)
+endef
+
 # bg-pkg-source-path - queries package source path
 #
 # Inputs:
