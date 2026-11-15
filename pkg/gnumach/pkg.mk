@@ -1,4 +1,4 @@
-# Buildgnoot - GNU Mach headers package
+# Buildgnoot - GNU Mach package
 # Copyright (C) 2026 Filip Kokosiński
 
 # This program is free software: you can redistribute it and/or modify
@@ -26,3 +26,35 @@ GNUMACH_HEADERS_AUTOTOOLS_INSTALL_TARGETS = install-data
 
 $(eval $(call bg-fetch-git,gnumach-headers))
 $(eval $(call bg-build-autotools,gnumach-headers))
+
+GNUMACH_VERSION = f349a52f3ac6f97024122f59d843f667206913fa
+GNUMACH_URI = https://https.git.savannah.gnu.org/git/hurd/gnumach.git/
+
+GNUMACH_AUTOTOOLS_RUN_AUTORECONF = yes
+GNUMACH_AUTOTOOLS_CONFIGURE_FLAGS = \
+	CC=$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc \
+	LD=$(CONFIG_BG_TOOLCHAIN_TARGET)-ld \
+	MIG=$(CONFIG_BG_TOOLCHAIN_TARGET)-mig \
+	LDFLAGS= \
+	--target=$(CONFIG_BG_TOOLCHAIN_TARGET) \
+	--prefix=$(bg-pkg-install-path) \
+	--exec-prefix=/tmp/throwitaway \
+	--enable-kdb \
+	--enable-kmsg \
+	--disable-net-group \
+	--disable-pcmcia-group \
+	--disable-wireless-group \
+	--disable-user32
+
+GNUMACH_AUTOTOOLS_BUILD_TARGETS = \
+	gnumach.gz \
+	gnumach \
+	gnumach.msgids
+
+GNUMACH_AUTOTOOLS_INSTALL_TARGETS = \
+	DESTDIR=$(bg-pkg-install-path) \
+	exec_bootdir=/boot \
+	install
+
+$(eval $(call bg-fetch-git,gnumach))
+$(eval $(call bg-build-autotools,gnumach))
