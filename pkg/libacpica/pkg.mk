@@ -25,6 +25,10 @@ LIBACPICA_MAKE_BUILD_TARGETS = \
 	AR=$(CONFIG_BG_TOOLCHAIN_TARGET)-ar \
 	PREFIX=$(bg-pkg-install-path) \
 	all
+
+LIBACPICA_MAKE_INSTALL_TARGETS = \
+	PREFIX=$(bg-pkg-install-path) \
+	install
 	
 $(eval $(call bg-fetch-git,libacpica))
 $(eval $(call bg-build-make,libacpica))
