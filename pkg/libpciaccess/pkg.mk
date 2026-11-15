@@ -19,12 +19,12 @@ LIBPCIACCESS_URI = https://xorg.freedesktop.org/archive/individual/lib/libpciacc
 LIBPCIACCESS_SHA256 = 3c55aa86c82e54a4e3109786f0463530d53b36b6d1cfd14616454f985dd2aa43
 
 LIBPCIACCESS_PATCHES = $(abspath pkg/libpciaccess/0001-Fix-compilation-for-GNU-Hurd.patch)
+LIBPCIACCESS_BDEPS = zlib
 
 LIBPCIACCESS_MESON_SETUP_FLAGS = \
 	--prefix=$(bg-pkg-install-path) \
 	--includedir=$(call bg-pkg-install-path,bg-toolchain)/$(CONFIG_BG_TOOLCHAIN_TARGET)/include \
 	--default-library=both \
-	-Dzlib=disabled \
 	--cross-file=$(abspath pkg/meta/meson/$(CONFIG_BG_TOOLCHAIN_TARGET))-cross-file.txt
 
 $(eval $(call bg-fetch-tarball,libpciaccess))
