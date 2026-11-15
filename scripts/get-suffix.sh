@@ -31,6 +31,9 @@ case $filename in
     *.tar.gz)
         echo "tar.gz"
         ;;
+    *.tar.bz2)
+        echo "tar.bz2"
+        ;;
     *)
         echo "$0: couldn't determine extension for $filename!"
         exit 1
