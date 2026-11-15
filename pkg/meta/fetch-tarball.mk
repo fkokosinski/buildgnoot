@@ -43,6 +43,14 @@ $(1)-source: $(bg-pkg-source-path).stamp
 $(bg-pkg-source-path).stamp: $(bg-tarball-download-path) | $(BG_SOURCE_PATH)
 	rm -rf $(bg-pkg-source-path)
 	tar mxaf $$< -C $(BG_SOURCE_PATH) --transform='s|^[^/]*|$(1)-$(bg-pkg-version)|'
+
+	pushd $(bg-pkg-source-path)
+	for patch in $(bg-pkg-patches); do
+		echo "-- Applying patch $$$$patch"
+		patch -p1 < $$$$patch
+	done
+	popd
+	
 	touch $$@
 
 .PHONY: $(1)-download $(1)-source

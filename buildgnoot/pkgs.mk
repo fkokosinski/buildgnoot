@@ -86,6 +86,16 @@ define bg-pkg-bdeps
 $(call bg-pkg-getprop,$(1),bdeps)
 endef
 
+# bg-pkg-patches - queries package patchfiles
+#
+# Inputs:
+#  - $(1): package name; can be omitted if used within an $(eval $(call ...))
+#
+# Output: package patchfiles
+define bg-pkg-patches
+$(call bg-pkg-getprop,$(1),PATCHES)
+endef
+
 # bg-pkg-source-path - queries package source path
 #
 # Inputs:
