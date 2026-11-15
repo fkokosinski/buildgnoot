@@ -20,6 +20,8 @@ BG_TOOLCHAIN_BDEPS = \
 	pkg-config-lite \
 	gcc \
 	glibc \
+	gnumach-headers \
+	hurd-headers \
 	mig
 
 bg-toolchain-download:
