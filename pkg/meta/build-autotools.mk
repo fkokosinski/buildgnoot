@@ -71,6 +71,8 @@ $(bg-pkg-build-path).stamp: $(bg-pkg-source-path).stamp $(foreach p,$(bg-pkg-bde
 	# build dependencies
 	$(foreach p,$(bg-pkg-bdeps),rsync -av $$(call bg-pkg-install-path,$(p))/ .;)
 	export PATH="$$$$PATH:$$$$(realpath ./bin)"
+	export PKG_CONFIG_PATH="$$$$(realpath ./lib/pkgconfig)"
+	export LDFLAGS="-Wl,-rpath-link,$$$$(realpath ./lib)"
 
 	$(bg-pkg-env) $(bg-pkg-source-path)/configure $(bg-pkg-at-configure-flags)
 ifdef $(bg-pkg-at-build-targets-raw)
