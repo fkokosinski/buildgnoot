@@ -49,6 +49,14 @@ $(1)-source: $(bg-pkg-source-path).stamp
 $(bg-pkg-source-path).stamp: $(bg-git-download-path).stamp | $(BG_SOURCE_PATH)
 	rm -rf $(bg-pkg-source-path)
 	cp -r $(bg-git-download-path) $(bg-pkg-source-path)
+
+	pushd $(bg-pkg-source-path)
+	for patch in $(bg-pkg-patches); do
+		echo "-- Applying patch $$$$patch"
+		patch -p1 < $$$$patch
+	done
+	popd
+
 	touch $$@
 
 .PHONY: $(1)-download
