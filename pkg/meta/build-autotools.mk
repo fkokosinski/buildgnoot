@@ -72,7 +72,7 @@ $(bg-pkg-build-path).stamp: $(bg-pkg-source-path).stamp $(foreach p,$(bg-pkg-bde
 	$(foreach p,$(bg-pkg-bdeps),rsync -av $$(call bg-pkg-install-path,$(p))/ .;)
 	export PATH="$$$$PATH:$$$$(realpath ./bin)"
 
-	$(bg-pkg-source-path)/configure $(bg-pkg-at-configure-flags)
+	$(bg-pkg-env) $(bg-pkg-source-path)/configure $(bg-pkg-at-configure-flags)
 ifdef $(bg-pkg-at-build-targets-raw)
 	$(MAKE) -j $(shell nproc) $(bg-pkg-at-build-targets)
 endif
