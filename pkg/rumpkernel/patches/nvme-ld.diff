@@ -1,0 +1,138 @@
+--- a/buildrump.sh/src/sys/rump/dev/Makefile.rumpdevcomp
++++ b/buildrump.sh/src/sys/rump/dev/Makefile.rumpdevcomp
+@@ -4,6 +4,7 @@
+ RUMPDEVCOMP=	ata audio bpf cgd disk dm drvctl fss md 		\
+ 		pad pud	putter raidframe rnd scsipi sysmon vnd wscons	\
+ 		opencrypto
++RUMPDEVCOMP+=	pci_nvme pci_ld pci_ld_nvme
+ 
+ RUMPUSBDEVS=	ualea ubt ucom ugenhc ulpt umass usb
+ 
+--- /dev/null
++++ b/buildrump.sh/src/sys/rump/dev/lib/libpci_ld/Makefile
+@@ -0,0 +1,13 @@
++RUMPTOP=${TOPRUMP}
++
++.PATH:	${.CURDIR}/../../../../dev
++
++LIB=	rumpdev_ld
++COMMENT=Logical disk support
++
++IOCONF=	ld.ioconf
++SRCS+=	ld.c
++
++.include "${RUMPTOP}/Makefile.rump"
++.include <bsd.lib.mk>
++.include <bsd.klinks.mk>
+--- /dev/null
++++ b/buildrump.sh/src/sys/rump/dev/lib/libpci_ld/ld.ioconf
+@@ -0,0 +1,10 @@
++#       $NetBSD: ld.ioconf,v 1.1 2018/02/21 08:36:36 pgoyette Exp $
++
++ioconf ld
++
++include "conf/files"
++include "dev/pci/files.pci"
++
++pseudo-root nvme*
++
++ld* at nvme? nsid ?
+--- /dev/null
++++ b/buildrump.sh/src/sys/rump/dev/lib/libpci_ld_nvme/Makefile
+@@ -0,0 +1,16 @@
++RUMPTOP=${TOPRUMP}
++
++.PATH:	${.CURDIR}/../../../../dev/pci \
++	${.CURDIR}/../../../../dev/ic
++	${.CURDIR}/../../../../dev
++
++LIB=	rumpdev_ld_nvme
++COMMENT=NVME logical disk support
++
++IOCONF=	ld_nvme.ioconf
++SRCS+=	ld_nvme.c
++SRCS+=	ld_nvme_component.c
++
++.include "${RUMPTOP}/Makefile.rump"
++.include <bsd.lib.mk>
++.include <bsd.klinks.mk>
+--- /dev/null
++++ b/buildrump.sh/src/sys/rump/dev/lib/libpci_ld_nvme/ld_nvme.ioconf
+@@ -0,0 +1,10 @@
++#       $NetBSD: ld_nvme.ioconf,v 1.1 2016/09/27 03:53:08 pgoyette Exp $
++
++ioconf ld_nvme
++
++include "conf/files"
++include "dev/pci/files.pci"
++
++pseudo-root nvme*
++
++ld* at nvme? nsid ?
+--- /dev/null
++++ b/buildrump.sh/src/sys/rump/dev/lib/libpci_ld_nvme/ld_nvme_component.c
+@@ -0,0 +1,35 @@
++#include <sys/param.h>
++#include <sys/conf.h>
++#include <sys/device.h>
++#include <sys/disklabel.h>
++
++#include "ioconf.h"
++
++#include <rump-sys/kern.h>
++#include <rump-sys/vfs.h>
++
++RUMP_COMPONENT(RUMP_COMPONENT_POSTINIT)
++{
++  extern const struct bdevsw ld_bdevsw;
++  extern const struct cdevsw ld_cdevsw;
++  devmajor_t bmaj, cmaj;
++  int error, i;
++
++  bmaj = bdevsw_lookup_major(&ld_bdevsw);
++  cmaj = cdevsw_lookup_major(&ld_cdevsw);
++
++  for (i = 0; i < 7; i++)
++    {
++      char bbase[] = "/dev/ldX";
++      char rbase[] = "/dev/rldX";
++
++      if (device_lookup(&ld_cd, i) == NULL)
++	break;
++
++      bbase[sizeof(bbase)-2] = '0' + i;
++      rbase[sizeof(rbase)-2] = '0' + i;
++
++      FLAWLESSCALL(rump_vfs_makedevnodes(S_IFBLK, bbase, 'a', bmaj, DISKMINOR(i, 0), 4));
++      FLAWLESSCALL(rump_vfs_makedevnodes(S_IFCHR, rbase, 'a', cmaj, DISKMINOR(i, 0), 4));
++    }
++}
+--- /dev/null
++++ b/buildrump.sh/src/sys/rump/dev/lib/libpci_nvme/Makefile
+@@ -0,0 +1,15 @@
++RUMPTOP=${TOPRUMP}
++
++.PATH:	${.CURDIR}/../../../../dev/pci \
++	${.CURDIR}/../../../../dev/ic
++
++LIB=	rumpdev_nvme
++COMMENT=NVME support
++
++IOCONF=	NVME.ioconf
++
++SRCS+=	nvme.c nvme_pci.c
++
++.include "${RUMPTOP}/Makefile.rump"
++.include <bsd.lib.mk>
++.include <bsd.klinks.mk>
+--- /dev/null
++++ b/buildrump.sh/src/sys/rump/dev/lib/libpci_nvme/NVME.ioconf
+@@ -0,0 +1,8 @@
++ioconf nvme_pci
++
++include "conf/files"
++include "dev/pci/files.pci"
++
++pseudo-root pci*
++
++nvme* at pci? dev ? function ?
