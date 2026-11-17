@@ -46,6 +46,7 @@
           libmpc
           meson
           mpfr.dev
+          ncurses
           ninja
           parted
           pkg-config
