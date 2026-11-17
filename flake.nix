@@ -35,6 +35,7 @@
           binutils
           bison
           fakeroot
+          fig2dev
           flex
           gcc
           git
