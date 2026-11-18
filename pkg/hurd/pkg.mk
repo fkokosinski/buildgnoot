@@ -76,3 +76,31 @@ LIBSHOULDBEINLIBC_AUTOTOOLS_INSTALL_TARGETS = libshouldbeinlibc-install
 
 $(eval $(call bg-fetch-git,libshouldbeinlibc))
 $(eval $(call bg-build-autotools,libshouldbeinlibc))
+
+HURD_STAGE_1_VERSION = 2336993cf542f430a424fbad426844594c80d213
+HURD_STAGE_1_URI = git://git.git.savannah.gnu.org/hurd/hurd.git
+
+HURD_STAGE_1_AUTOTOOLS_RUN_AUTORECONF = yes
+HURD_STAGE_1_AUTOTOOLS_CONFIGURE_FLAGS = \
+	CC=$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc \
+	CXX=$(CONFIG_BG_TOOLCHAIN_TARGET)-g++ \
+	AR=$(CONFIG_BG_TOOLCHAIN_TARGET)-ar \
+	RANLIB=$(CONFIG_BG_TOOLCHAIN_TARGET)-ranlib \
+	MIG=$(CONFIG_BG_TOOLCHAIN_TARGET)-mig \
+	PKG_CONFIG=pkg-config \
+	LDFLAGS="-ldl -lhurduser -lmachuser" \
+	--host=$(CONFIG_BG_TOOLCHAIN_TARGET) \
+	--prefix=$(bg-pkg-install-path) \
+	--enable-static-progs='ext2fs,iso9660fs,rumpdisk,pci-arbiter,acpi' \
+	--disable-profile \
+	--without-parted \
+	--without-libbz2 \
+	--without-libz \
+	--disable-ncursesw \
+	ac_cv_search_clnt_create=no
+
+HURD_STAGE_1_AUTOTOOLS_BUILD_TARGETS = $(bg-empty)
+HURD_STAGE_1_AUTOTOOLS_INSTALL_TARGETS = install
+
+$(eval $(call bg-fetch-git,hurd-stage-1))
+$(eval $(call bg-build-autotools,hurd-stage-1))
