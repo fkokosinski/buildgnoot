@@ -104,3 +104,46 @@ HURD_STAGE_1_AUTOTOOLS_INSTALL_TARGETS = install
 
 $(eval $(call bg-fetch-git,hurd-stage-1))
 $(eval $(call bg-build-autotools,hurd-stage-1))
+
+HURD_VERSION = 2336993cf542f430a424fbad426844594c80d213
+HURD_URI = git://git.git.savannah.gnu.org/hurd/hurd.git
+HURD_BDEPS = \
+	e2fsprogs \
+	hurd-stage-1 \
+	libacpica \
+	libdaemon \
+	libgcrypt \
+	libgpg-error \
+	libirqhelp \
+	libparted \
+	libpciaccess \
+	libshouldbeinlibc \
+	libxcrypt \
+	ncurses \
+	rumpkernel \
+	zlib
+
+HURD_AUTOTOOLS_RUN_AUTORECONF = yes
+HURD_AUTOTOOLS_CONFIGURE_FLAGS = \
+	CC=$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc \
+	CFLAGS="-Wno-error=strict-prototypes -I$(bg-pkg-build-path)/include -I$(bg-pkg-build-path)/usr/include" \
+	CXX=$(CONFIG_BG_TOOLCHAIN_TARGET)-g++ \
+	AR=$(CONFIG_BG_TOOLCHAIN_TARGET)-ar \
+	RANLIB=$(CONFIG_BG_TOOLCHAIN_TARGET)-ranlib \
+	MIG=$(CONFIG_BG_TOOLCHAIN_TARGET)-mig \
+	PKG_CONFIG=pkg-config \
+	LDFLAGS="-ldl -lhurduser -lmachuser $$$$LDFLAGS" \
+	--host=$(CONFIG_BG_TOOLCHAIN_TARGET) \
+	--prefix=$(bg-pkg-install-path) \
+	--enable-static-progs='ext2fs,iso9660fs,rumpdisk,pci-arbiter,acpi' \
+	--disable-profile \
+	--without-libbz2 \
+	--without-libz \
+	--disable-ncursesw \
+	ac_cv_search_clnt_create=no
+
+HURD_AUTOTOOLS_BUILD_TARGETS = $(bg-empty)
+HURD_AUTOTOOLS_INSTALL_TARGETS = install
+
+$(eval $(call bg-fetch-git,hurd))
+$(eval $(call bg-build-autotools,hurd))
