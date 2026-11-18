@@ -59,6 +59,8 @@ $(call bg-pkg-install-path,rumpkernel).stamp: $(call bg-pkg-build-path,rumpkerne
 		-iname '*.h' \
 		-exec install -v -m 0644 {} $(call bg-pkg-install-path,rumpkernel)/usr/include/rump \;
 
+	touch $@
+
 rumpkernel: rumpkernel-install
 
 .PHONY: rumpkernel rumpkernel-install rumpkernel-build
