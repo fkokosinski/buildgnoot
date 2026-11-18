@@ -91,7 +91,7 @@ $(bg-pkg-install-path).stamp: $(bg-pkg-build-path).stamp | $(BG_INSTALL_PATH)
 
 	pushd $(bg-pkg-build-path)
 	export PATH="$$$$PATH:$$$$(realpath ./bin)"
-	$(MAKE) -j $(shell nproc) $(bg-pkg-at-install-targets)
+	fakeroot $(MAKE) -j $(shell nproc) $(bg-pkg-at-install-targets)
 	popd
 
 	touch $$@
