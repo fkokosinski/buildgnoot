@@ -44,6 +44,7 @@
           grub2
           kconfig-frontends
           libmpc
+          libtool
           meson
           mpfr.dev
           ncurses
