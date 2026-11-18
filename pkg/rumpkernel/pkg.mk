@@ -25,7 +25,7 @@ RUMPKERNEL_BDEPS = \
 
 rumpkernel-build: $(call bg-pkg-build-path,rumpkernel).stamp
 
-$(call bg-pkg-build-path,rumpkernel).stamp: $(foreach p,$(BG_TOOLCHAIN_BDEPS),$(call bg-pkg-deferred-install-path,$(p)).stamp) | $(BG_BUILD_PATH)
+$(call bg-pkg-build-path,rumpkernel).stamp: $(call bg-pkg-source-path,rumpkernel).stamp $(foreach p,$(BG_TOOLCHAIN_BDEPS),$(call bg-pkg-deferred-install-path,$(p)).stamp) | $(BG_BUILD_PATH)
 	rm -rf $(call bg-pkg-build-path,rumpkernel)
 	cp -r $(call bg-pkg-source-path,rumpkernel) $(call bg-pkg-build-path,rumpkernel)
 
