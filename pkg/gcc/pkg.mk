@@ -55,6 +55,7 @@ GCC_SHA256 = e6738e29597f733270731aa90600f37ffdc045079dfc27ec7e8192cc81085c3e
 GCC_BDEPS = binutils glibc-stage-1 gnumach-headers
 
 GCC_AUTOTOOLS_CONFIGURE_FLAGS = \
+	LDFLAGS= \
 	LDFLAGS_FOR_TARGET="-Wl,-rpath-link,$(bg-pkg-build-path)/lib" \
 	--target=$(CONFIG_BG_TOOLCHAIN_TARGET) \
 	--prefix=$(bg-pkg-install-path) \
