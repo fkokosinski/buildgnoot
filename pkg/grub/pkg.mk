@@ -28,7 +28,8 @@ GRUB_AUTOTOOLS_CONFIGURE_FLAGS = \
        --disable-efiemu \
        --disable-werror \
        --enable-grub-mkfont=no \
-       --with-bootdir=$(bg-pkg-install-path)/boot
+       --with-bootdir=$(bg-pkg-install-path)/boot \
+       ax_cv_check_ldflags___Wl___image_base_0x400000=no
 
 GRUB_AUTOTOOLS_BUILD_TARGETS = $(bg-empty)
 GRUB_AUTOTOOLS_INSTALL_TARGETS = install
