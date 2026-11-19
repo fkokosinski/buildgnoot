@@ -96,6 +96,16 @@ define bg-pkg-patches
 $(call bg-pkg-getprop,$(1),PATCHES)
 endef
 
+# bg-pkg-overlay - queries package rootfs overlay
+#
+# Inputs:
+#  - $(1): package name; can be omitted if used within an $(eval $(call ...))
+#
+# Output: package rootfs overlay
+define bg-pkg-overlay
+$(call bg-pkg-getprop,$(1),OVERLAY)
+endef
+
 # bg-pkg-env - queries package environment
 #
 # Inputs:
