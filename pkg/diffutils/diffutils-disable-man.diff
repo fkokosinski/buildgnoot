@@ -1,0 +1,10 @@
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -2389 +2389 @@
+-SUBDIRS = lib src tests doc man po gnulib-tests
++SUBDIRS = lib src tests doc po gnulib-tests
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -22 +22 @@
+-SUBDIRS = lib src tests doc man po gnulib-tests
++SUBDIRS = lib src tests doc po gnulib-tests

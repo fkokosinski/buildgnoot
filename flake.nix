@@ -32,12 +32,22 @@
           autoconf
           automake
           automake116x
+          (automake.overrideAttrs (
+            final: _prev: {
+              version = "1.17";
+              src = pkgs.fetchurl {
+                url = "mirror://gnu/automake/automake-${final.version}.tar.xz";
+                hash = "sha256-iSDB/EEeE7kL9wTvnbbynVQOdtIyyzssn03EzFmb2ZA=";
+              };
+            }   
+          ))
           binutils
           bison
           fakeroot
           fig2dev
           flex
           gcc
+          gettext
           git
           gmp.dev
           gnumake
