@@ -23,6 +23,7 @@ BG_ROOTFS_BDEPS = \
 	grub \
 	hurd \
 	shadow
+BG_ROOTFS_OVERLAY = $(abspath pkg/bg-rootfs/overlay)
 
 bg-rootfs-download:
 	@:
@@ -42,6 +43,7 @@ $(call bg-pkg-install-path,bg-rootfs).stamp: $(foreach p,$(BG_ROOTFS_BDEPS),$(ca
 	pushd $(call bg-pkg-install-path,bg-rootfs)/$(CONFIG_BG_ROOTFS_TARGET)
 	$(foreach p,$(BG_ROOTFS_BDEPS),rsync -av $(call bg-pkg-install-path,$(p))/ .;)
 	$(foreach p,$(BG_ROOTFS_BDEPS),$(if $(call bg-pkg-overlay,$(p)),rsync -av $(call bg-pkg-overlay,$(p))/ .;,))
+	rsync -av $(call bg-pkg-overlay,bg-rootfs)/ .
 	popd
 
 	touch $@
