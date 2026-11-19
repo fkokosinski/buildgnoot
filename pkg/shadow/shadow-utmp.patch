@@ -1,0 +1,10 @@
+--- a/lib/user_busy.c
++++ b/lib/user_busy.c
+@@ -17,6 +17,7 @@
+ #include <dirent.h>
+ #include <fcntl.h>
+ #include <unistd.h>
++#include <utmp.h>
+ #include "defines.h"
+ #include "prototypes.h"
+ #ifdef ENABLE_SUBIDS
