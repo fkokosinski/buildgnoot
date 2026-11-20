@@ -22,6 +22,7 @@ BG_ROOTFS_BDEPS = \
 	gnumach \
 	grub \
 	hurd \
+	libxcrypt \
 	shadow
 BG_ROOTFS_OVERLAY = $(abspath pkg/bg-rootfs/overlay)
 
