@@ -134,7 +134,7 @@ HURD_AUTOTOOLS_CONFIGURE_FLAGS = \
 	PKG_CONFIG=pkg-config \
 	LDFLAGS="-ldl -lhurduser -lmachuser $$$$LDFLAGS" \
 	--host=$(CONFIG_BG_TOOLCHAIN_TARGET) \
-	--prefix=$(bg-pkg-install-path) \
+	--prefix=/ \
 	--enable-static-progs='ext2fs,iso9660fs,rumpdisk,pci-arbiter,acpi' \
 	--disable-profile \
 	--without-libbz2 \
@@ -143,7 +143,7 @@ HURD_AUTOTOOLS_CONFIGURE_FLAGS = \
 	ac_cv_search_clnt_create=no
 
 HURD_AUTOTOOLS_BUILD_TARGETS = $(bg-empty)
-HURD_AUTOTOOLS_INSTALL_TARGETS = install
+HURD_AUTOTOOLS_INSTALL_TARGETS = DESTDIR=$(bg-pkg-install-path) install
 
 $(eval $(call bg-fetch-git,hurd))
 $(eval $(call bg-build-autotools,hurd))
