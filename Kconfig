@@ -73,5 +73,6 @@ endmenu # "Toolchain"
 menu "Packages"
 
 source "pkg/bash/Kconfig"
+source "pkg/coreutils/Kconfig"
 
 endmenu # "Packages"
