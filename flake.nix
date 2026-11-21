@@ -41,6 +41,15 @@
               };
             }   
           ))
+          (automake.overrideAttrs (
+            final: _prev: {
+              version = "1.18";
+              src = pkgs.fetchurl {
+                url = "mirror://gnu/automake/automake-${final.version}.tar.xz";
+                hash = "sha256-W9zMqWsAen40TCQgS5uawS7NF/WXGTGpBjve5Ih/Sq8=";
+              };
+            }   
+          ))
           binutils
           bison
           fakeroot
