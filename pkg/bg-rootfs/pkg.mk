@@ -23,7 +23,9 @@ BG_ROOTFS_BDEPS = \
 	grub \
 	hurd \
 	libxcrypt \
-	shadow
+	sed \
+	shadow \
+	$(bg-empty)
 BG_ROOTFS_OVERLAY = $(abspath pkg/bg-rootfs/overlay)
 
 bg-rootfs-download:

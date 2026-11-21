@@ -17,3 +17,88 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 echo "-- Buildgnoot: starting $0..."
+
+first_boot=0
+
+server_setup() {
+  fs_path=$1
+  server_bin=$2
+  shift 2
+
+  if [ ! -c "$fs_path" ]; then
+    echo -n "Setting up $server_bin @ $fs_path..."
+    mkdir -p "$(dirname $fs_path)"
+    settrans -c "$fs_path" "$server_bin" "$@"
+    echo "Done."
+  fi
+}
+
+if ! fsysopts / --update --writable; then
+  echo "Failed to set / to writable! Dropping into shell..."
+  exec /bin/bash
+fi
+  
+umask 022
+
+if [ ! -e /bin/sh ]; then
+  ln -s /bin/bash /bin/sh
+fi
+
+# do /servers/socket/1 separately, since we are not guaranteed to have working
+# pipes, especially during the first boot, at this point
+if [ ! -c /servers/socket/1 ]; then
+  first_boot=1
+  echo -n "Setting up /hurd/pflocal @ /servers/socket/1..."
+  mkdir -p /servers/socket
+  settrans -c /servers/socket/1 /hurd/pflocal
+  echo "Done."
+fi
+
+if [ "$first_boot" -eq 1 ]; then
+  server_setup /servers/socket/local /hurd/pflocal
+  server_setup /servers/crash /hurd/crash --dump-core
+  server_setup /servers/password /hurd/password
+  server_setup /servers/acpi /hurd/acpi
+  server_setup /servers/bus/pci /hurd/pci-arbiter
+  server_setup /servers/shutdown /hurd/shutdown
+
+  devices=(
+    std
+    vcs
+    tty1
+    tty2
+    tty3
+    tty4
+    tty5
+    tty6
+    com0
+    rumpdisk
+    wd0
+    wd0s1
+    rtc
+    pseudo-root
+  )
+
+  cd /dev
+  rm -f console
+  for dev in ${devices[*]}; do
+    if [ ! -e "$dev" ]; then
+      echo -n "Creating /dev/$dev..."
+      MAKEDEV "$dev"
+      echo "Done."
+    fi
+  done
+fi
+
+sync
+if ! fsysopts / --update --readonly; then
+  echo "Failed to set / to readonly! Dropping into shell..."
+  exec /bin/bash
+fi
+
+if [ "$first_boot" -eq 1 ]; then
+  echo "Rebooting the system after initial setup..."
+  reboot
+fi
+
+exec /hurd/init -a
