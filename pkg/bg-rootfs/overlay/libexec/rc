@@ -18,4 +18,22 @@
 
 echo "-- Buildgnoot: starting $0..."
 
-exec /bin/bash
+fsck -a
+fsysopts / --update --writable
+
+if [ -d /var/run ]; then
+  rm -rf -- /var/run/*
+  : > /var/run/utmp
+  chmod 644 /var/run/utmp
+  : > /var/run/mtab
+fi
+
+if [ -r /etc/hostname ]; then
+  hostname "$(cat /etc/hostname)"
+else
+  hostname "buildgnoot"
+fi
+
+if [ ! -e /proc/cmdline ]; then
+  settrans -ac /proc /hurd/procfs --compatible
+fi
