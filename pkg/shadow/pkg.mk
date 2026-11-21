@@ -17,7 +17,9 @@
 SHADOW_VERSION = 4.14.2
 SHADOW_URI = https://github.com/shadow-maint/shadow/releases/download/$(SHADOW_VERSION)/shadow-$(SHADOW_VERSION).tar.xz
 SHADOW_SHA256 = 25df30589d2e31aaff14576d03f980bb578e6d446891da6d24de1e5a09a38949
-SHADOW_PATCHES = $(abspath pkg/shadow/shadow-utmp.patch)
+SHADOW_PATCHES = \
+       $(abspath pkg/shadow/patches/shadow-utmp.patch) \
+       $(abspath pkg/shadow/patches/hurd-compatible.patch)
 SHADOW_BDEPS = libxcrypt
 
 SHADOW_AUTOTOOLS_CONFIGURE_FLAGS = \

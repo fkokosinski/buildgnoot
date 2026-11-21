@@ -1,0 +1,14 @@
+--- a/src/Makefile.in	
++++ b/src/Makefile.in
+@@ -88,9 +88,9 @@
+ POST_UNINSTALL = :
+ build_triplet = @build@
+ host_triplet = @host@
+-bin_PROGRAMS = groups$(EXEEXT) login$(EXEEXT) $(am__EXEEXT_1) \
++bin_PROGRAMS =  $(am__EXEEXT_1) \
+ 	$(am__EXEEXT_2)
+-sbin_PROGRAMS = nologin$(EXEEXT)
++sbin_PROGRAMS = 
+ ubin_PROGRAMS = faillog$(EXEEXT) chage$(EXEEXT) chfn$(EXEEXT) \
+ 	chsh$(EXEEXT) expiry$(EXEEXT) gpasswd$(EXEEXT) newgrp$(EXEEXT) \
+ 	passwd$(EXEEXT) $(am__EXEEXT_4) $(am__EXEEXT_5)
