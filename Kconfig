@@ -74,5 +74,6 @@ menu "Packages"
 
 source "pkg/bash/Kconfig"
 source "pkg/coreutils/Kconfig"
+source "pkg/glibc/Kconfig"
 
 endmenu # "Packages"
