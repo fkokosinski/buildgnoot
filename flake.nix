@@ -80,7 +80,7 @@
         hardeningDisable = [ "all" ];
 
         shellHook = ''
-          export PATH="$(realpath .install/bg-toolchain-*/x86_64-gnu/bin):$PATH"
+          export PATH="$(pwd)/.install/bg-toolchain-0.0.1/x86_64-gnu/bin:$PATH"
         '';
       };
     };
