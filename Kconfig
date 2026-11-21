@@ -16,6 +16,8 @@
 
 mainmenu "Buildgnoot Configuration"
 
+menu "Build paths"
+
 config BG_DOWNLOAD_PATH
 	string "Buildgnoot download path"
 	default ".download"
@@ -52,6 +54,10 @@ config BG_INSTALL_PATH
 	  Select where installgnoot should store package install artifacts. Defaults to
 	  '$pwd/.install'.
 
+endmenu # "Build paths"
+
+menu "Toolchain"
+
 config BG_TOOLCHAIN_TARGET
 	string "Cross-compiler toolchain target"
 	default "x86_64-gnu"
@@ -61,3 +67,11 @@ config BG_TOOLCHAIN_TARGET
 	  Set to "x86_64-gnu" by default, and is used by e.g. GNU Autotools with
 	  the "--target" configuration option. It may need to be translated for other
 	  build systems.
+
+endmenu # "Toolchain"
+
+menu "Packages"
+
+source "pkg/bash/Kconfig"
+
+endmenu # "Packages"
