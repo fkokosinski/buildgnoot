@@ -15,8 +15,8 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 BG_VERSION_MAJOR := 0
-BG_VERSION_MINOR := 0
-BG_VERSION_PATCH := 1
+BG_VERSION_MINOR := 1
+BG_VERSION_PATCH := 0
 
 SHELL = bash
 .SHELLFLAGS = -euo pipefail -c
