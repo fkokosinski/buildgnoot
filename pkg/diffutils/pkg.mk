@@ -18,11 +18,9 @@ DIFFUTILS_VERSION = 3.12
 DIFFUTILS_URI = https://ftpmirror.gnu.org/diffutils/diffutils-$(DIFFUTILS_VERSION).tar.xz
 DIFFUTILS_SHA256 = 7c8b7f9fc8609141fdea9cece85249d308624391ff61dedaf528fcb337727dfd
 DIFFUTILS_PATCHES = $(abspath pkg/diffutils/diffutils-disable-man.diff)
+DIFFUTILS_ENV = $(bg-pkg-at-cross-env)
 
 DIFFUTILS_AUTOTOOLS_CONFIGURE_FLAGS = \
-       CC=$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc \
-       AR=$(CONFIG_BG_TOOLCHAIN_TARGET)-ar \
-       RANLIB=$(CONFIG_BG_TOOLCHAIN_TARGET)-ranlib \
        --prefix=$(bg-pkg-install-path) \
        --host=$(CONFIG_BG_TOOLCHAIN_TARGET) \
        --disable-year2038 \
