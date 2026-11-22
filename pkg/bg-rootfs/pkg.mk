@@ -23,12 +23,15 @@ BG_ROOTFS_BDEPS = \
 	gnumach \
 	grub \
 	hurd \
+	libacpica \
 	libgcrypt \
 	libgpg-error \
 	libparted \
+	libpciaccess \
 	libxcrypt \
 	sed \
 	shadow \
+	zlib \
 	$(bg-empty)
 
 ifeq ($(CONFIG_PKG_BINUTILS),y)
