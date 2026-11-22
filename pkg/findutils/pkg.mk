@@ -17,11 +17,9 @@
 FINDUTILS_VERSION = 4.10.0
 FINDUTILS_URI = https://ftpmirror.gnu.org/findutils/findutils-$(FINDUTILS_VERSION).tar.xz
 FINDUTILS_SHA256 = 1387e0b67ff247d2abde998f90dfbf70c1491391a59ddfecb8ae698789f0a4f5
+FINDUTILS_ENV = $(bg-pkg-at-cross-env)
 
 FINDUTILS_AUTOTOOLS_CONFIGURE_FLAGS = \
-       CC=$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc \
-       AR=$(CONFIG_BG_TOOLCHAIN_TARGET)-ar \
-       RANLIB=$(CONFIG_BG_TOOLCHAIN_TARGET)-ranlib \
        --prefix=$(bg-pkg-install-path) \
        --host=$(CONFIG_BG_TOOLCHAIN_TARGET) \
        --disable-year2038
