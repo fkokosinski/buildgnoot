@@ -17,11 +17,9 @@
 E2FSPROGS_VERSION = 1.47.4
 E2FSPROGS_URI = https://www.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v$(E2FSPROGS_VERSION)/e2fsprogs-$(E2FSPROGS_VERSION).tar.gz
 E2FSPROGS_SHA256 = da274408bebbfd13a5a2fc3cfc66e3ffff17c48534673aa67f88d49b99123b96
+E2FSPROGS_ENV = $(bg-pkg-at-cross-env)
 
 E2FSPROGS_AUTOTOOLS_CONFIGURE_FLAGS = \
-	CC=$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc \
-	AR=$(CONFIG_BG_TOOLCHAIN_TARGET)-ar \
-	RANLIB=$(CONFIG_BG_TOOLCHAIN_TARGET)-ranlib \
 	--prefix=$(bg-pkg-install-path) \
 	--host=$(CONFIG_BG_TOOLCHAIN_TARGET) \
 	--enable-elf-shlibs \
