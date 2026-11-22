@@ -18,12 +18,14 @@ BG_ROOTFS_VERSION = $(BG_VERSION_MAJOR).$(BG_VERSION_MINOR).$(BG_VERSION_PATCH)
 BG_ROOTFS_BDEPS = \
 	bash \
 	coreutils \
+	e2fsprogs \
 	glibc \
 	gnumach \
 	grub \
 	hurd \
 	libgcrypt \
 	libgpg-error \
+	libparted \
 	libxcrypt \
 	sed \
 	shadow \
