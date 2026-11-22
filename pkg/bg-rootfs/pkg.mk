@@ -31,6 +31,10 @@ ifeq ($(CONFIG_PKG_BINUTILS),y)
 BG_ROOTFS_BDEPS += binutils
 endif
 
+ifeq ($(CONFIG_PKG_DIFFUTILS),y)
+BG_ROOTFS_BDEPS += diffutils
+endif
+
 BG_ROOTFS_OVERLAY = $(abspath pkg/bg-rootfs/overlay)
 
 bg-rootfs-download:
