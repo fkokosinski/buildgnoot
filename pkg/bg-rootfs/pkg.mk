@@ -61,9 +61,9 @@ bg-rootfs-install: $(call bg-pkg-install-path,bg-rootfs).stamp
 
 $(call bg-pkg-install-path,bg-rootfs).stamp: $(foreach p,$(BG_ROOTFS_BDEPS),$(call bg-pkg-deferred-install-path,$(p)).stamp) | $(BG_INSTALL_PATH)
 	rm -rf $(call bg-pkg-install-path,bg-rootfs)
-	mkdir -p $(call bg-pkg-install-path,bg-rootfs)/$(CONFIG_BG_ROOTFS_TARGET)
+	mkdir -p $(call bg-pkg-install-path,bg-rootfs)/
 
-	pushd $(call bg-pkg-install-path,bg-rootfs)/$(CONFIG_BG_ROOTFS_TARGET)
+	pushd $(call bg-pkg-install-path,bg-rootfs)/
 	$(foreach p,$(BG_ROOTFS_BDEPS),rsync -av $(call bg-pkg-install-path,$(p))/ .;)
 	$(foreach p,$(BG_ROOTFS_BDEPS),$(if $(call bg-pkg-overlay,$(p)),rsync -av $(call bg-pkg-overlay,$(p))/ .;,))
 	rsync -av $(call bg-pkg-overlay,bg-rootfs)/ .
