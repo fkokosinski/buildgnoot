@@ -26,6 +26,11 @@ BG_ROOTFS_BDEPS = \
 	sed \
 	shadow \
 	$(bg-empty)
+
+ifeq ($(CONFIG_PKG_BINUTILS),y)
+BG_ROOTFS_BDEPS += binutils
+endif
+
 BG_ROOTFS_OVERLAY = $(abspath pkg/bg-rootfs/overlay)
 
 bg-rootfs-download:
