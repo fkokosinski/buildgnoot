@@ -22,6 +22,8 @@ BG_ROOTFS_BDEPS = \
 	gnumach \
 	grub \
 	hurd \
+	libgcrypt \
+	libgpg-error \
 	libxcrypt \
 	sed \
 	shadow \
