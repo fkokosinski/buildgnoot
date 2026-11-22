@@ -18,7 +18,7 @@ GCC_STAGE_1_VERSION = 16.2.0
 GCC_STAGE_1_URI = https://ftpmirror.gnu.org/gnu/gcc/gcc-$(GCC_STAGE_1_VERSION)/gcc-$(GCC_STAGE_1_VERSION).tar.xz
 GCC_STAGE_1_SHA256 = e6738e29597f733270731aa90600f37ffdc045079dfc27ec7e8192cc81085c3e
 
-GCC_STAGE_1_BDEPS = binutils
+GCC_STAGE_1_BDEPS = host-binutils
 
 GCC_STAGE_1_AUTOTOOLS_CONFIGURE_FLAGS = \
 	--target=$(CONFIG_BG_TOOLCHAIN_TARGET) \
@@ -52,7 +52,7 @@ GCC_VERSION = 16.2.0
 GCC_URI = https://ftpmirror.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-$(GCC_VERSION).tar.xz
 GCC_SHA256 = e6738e29597f733270731aa90600f37ffdc045079dfc27ec7e8192cc81085c3e
 
-GCC_BDEPS = binutils glibc-stage-1 gnumach-headers
+GCC_BDEPS = host-binutils glibc-stage-1 gnumach-headers
 
 GCC_AUTOTOOLS_CONFIGURE_FLAGS = \
 	LDFLAGS= \

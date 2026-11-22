@@ -18,7 +18,7 @@ GLIBC_STAGE_1_VERSION = 2.44
 GLIBC_STAGE_1_URI = https://ftpmirror.gnu.org/glibc/glibc-$(GLIBC_STAGE_1_VERSION).tar.gz
 GLIBC_STAGE_1_SHA256 = 1217fc41ac7fb1f310c8c32b9c6c009cc769398d4b367b6aa57be0bb3ea8c1ef
 GLIBC_STAGE_1_BDEPS = \
-	binutils \
+	host-binutils \
 	gcc-stage-1 \
 	hurd-headers \
 	gnumach-headers \
@@ -47,7 +47,7 @@ GLIBC_VERSION = 2.44
 GLIBC_URI = https://ftpmirror.gnu.org/glibc/glibc-$(GLIBC_VERSION).tar.gz
 GLIBC_SHA256 = 1217fc41ac7fb1f310c8c32b9c6c009cc769398d4b367b6aa57be0bb3ea8c1ef
 GLIBC_BDEPS = \
-	binutils \
+	host-binutils \
 	gcc \
 	hurd-headers \
 	gnumach-headers \

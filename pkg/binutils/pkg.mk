@@ -32,4 +32,4 @@ $(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_INSTALL_TARGETS) = install
 $$(eval $$(call bg-build-autotools,$(1)))
 endef
 
-$(eval $(call bg-pkg-binutils,binutils))
+$(eval $(call bg-pkg-binutils,host-binutils))
