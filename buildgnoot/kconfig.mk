@@ -17,10 +17,11 @@
 menuconfig:
 	@kconfig nconf Kconfig
 
-alldefconfig randconfig:
+alldefconfig allyesconfig randconfig:
 	@kconfig conf --$@ Kconfig
 
 .PHONY: \
 	menuconfig \
 	alldefconfig \
+	allyesconfig \
 	randconfig
