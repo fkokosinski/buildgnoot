@@ -29,7 +29,7 @@ $(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_CONFIGURE_FLAGS) = \
 	--disable-nls
 
 ifeq ($(1),binutils)
-$(call bg-pkg-getprop-raw,$(1),ENV) = $(2)
+$(call bg-pkg-getprop-raw,$(1),ENV) = $(bg-pkg-at-cross-env)
 $(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_CONFIGURE_FLAGS) += --host=$(CONFIG_BG_TOOLCHAIN_TARGET)
 endif
 
@@ -39,11 +39,4 @@ $$(eval $$(call bg-build-autotools,$(1)))
 endef
 
 $(eval $(call bg-pkg-binutils,host-binutils))
-
-BINUTILS_ENV = \
-	CC=$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc \
-	CXX=$(CONFIG_BG_TOOLCHAIN_TARGET)-g++ \
-	AR=$(CONFIG_BG_TOOLCHAIN_TARGET)-ar \
-	RANLIB=$(CONFIG_BG_TOOLCHAIN_TARGET)-ranlib
-
-$(eval $(call bg-pkg-binutils,binutils,$(BINUTILS_ENV)))
+$(eval $(call bg-pkg-binutils,binutils))

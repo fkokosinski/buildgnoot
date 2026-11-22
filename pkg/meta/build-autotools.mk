@@ -14,6 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+define bg-pkg-at-cross-env
+CC=$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc \
+CXX=$(CONFIG_BG_TOOLCHAIN_TARGET)-g++ \
+AR=$(CONFIG_BG_TOOLCHAIN_TARGET)-ar \
+RANLIB=$(CONFIG_BG_TOOLCHAIN_TARGET)-ranlib
+endef
+
 # bg-pkg-at-configure-flags - returns Autotools configuration flags
 #
 # Inputs:
