@@ -73,6 +73,7 @@ endmenu # "Toolchain"
 menu "Packages"
 
 source "pkg/bash/Kconfig"
+source "pkg/binutils/Kconfig"
 source "pkg/coreutils/Kconfig"
 source "pkg/glibc/Kconfig"
 
