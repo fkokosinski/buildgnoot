@@ -15,7 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 SED_VERSION = 4.9
-SED_URI = https://ftpmirror.gnu.org/sed/sed-$(SED_VERSION).tar.xz
+SED_URI = $(CONFIG_BG_GNU_MIRROR)/gnu/sed/sed-$(SED_VERSION).tar.xz
 SED_SHA256 = 6e226b732e1cd739464ad6862bd1a1aba42d7982922da7a53519631d24975181
 
 SED_AUTOTOOLS_CONFIGURE_FLAGS = \

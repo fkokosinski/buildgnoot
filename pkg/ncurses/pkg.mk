@@ -15,7 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 NCURSES_VERSION = 6.4
-NCURSES_URI = https://ftpmirror.gnu.org/ncurses/ncurses-$(NCURSES_VERSION).tar.gz
+NCURSES_URI = $(CONFIG_BG_GNU_MIRROR)/gnu/ncurses/ncurses-$(NCURSES_VERSION).tar.gz
 NCURSES_SHA256 = 6931283d9ac87c5073f30b6290c4c75f21632bb4fc3603ac8100812bed248159
 
 NCURSES_AUTOTOOLS_CONFIGURE_FLAGS = \

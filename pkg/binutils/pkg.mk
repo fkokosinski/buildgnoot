@@ -16,7 +16,7 @@
 
 define bg-pkg-binutils
 $(call bg-pkg-getprop-raw,$(1),VERSION) = 2.47
-$(call bg-pkg-getprop-raw,$(1),URI) = https://ftpmirror.gnu.org/gnu/binutils/binutils-$$($(call bg-pkg-getprop-raw,$(1),VERSION)).tar.xz
+$(call bg-pkg-getprop-raw,$(1),URI) = $(CONFIG_BG_GNU_MIRROR)/gnu/binutils/binutils-$$($(call bg-pkg-getprop-raw,$(1),VERSION)).tar.xz
 $(call bg-pkg-getprop-raw,$(1),SHA256) = 154ab23b60070e8f27013c22977f1129425d67d1e8acd6e13010e617811e4cff
 $$(eval $$(call bg-fetch-tarball,$(1)))
 

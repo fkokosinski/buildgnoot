@@ -56,6 +56,16 @@ config BG_INSTALL_PATH
 
 endmenu # "Build paths"
 
+menu "Mirrors"
+
+config BG_GNU_MIRROR
+	string "Mirror server URL for GNU tarballs"
+	default "https://ftpmirror.gnu.org"
+	help
+	  Mirror server URL for GNU packages distributed as tarballs.
+
+endmenu # "Mirrors"
+
 menu "Toolchain"
 
 config BG_TOOLCHAIN_TARGET

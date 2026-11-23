@@ -15,7 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 GRUB_VERSION = 2.14
-GRUB_URI = https://ftpmirror.gnu.org/gnu/grub/grub-$(GRUB_VERSION).tar.xz
+GRUB_URI = $(CONFIG_BG_GNU_MIRROR)/gnu/grub/grub-$(GRUB_VERSION).tar.xz
 GRUB_SHA256 = bc8d3c73535b8838d8c8e2654d73edc4e6ae8c8acdb45d5df5dc9a1547446d43
 GRUB_OVERLAY = $(abspath pkg/grub/overlay/)
 

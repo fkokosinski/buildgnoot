@@ -15,7 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 BASH_VERSION = 5.3
-BASH_URI = https://ftpmirror.gnu.org/bash/bash-$(BASH_VERSION).tar.gz
+BASH_URI = $(CONFIG_BG_GNU_MIRROR)/gnu/bash/bash-$(BASH_VERSION).tar.gz
 BASH_SHA256 = 0d5cd86965f869a26cf64f4b71be7b96f90a3ba8b3d74e27e8e9d9d5550f31ba
 
 BASH_AUTOTOOLS_CONFIGURE_FLAGS = \

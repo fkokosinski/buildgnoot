@@ -15,7 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 FINDUTILS_VERSION = 4.10.0
-FINDUTILS_URI = https://ftpmirror.gnu.org/findutils/findutils-$(FINDUTILS_VERSION).tar.xz
+FINDUTILS_URI = $(CONFIG_BG_GNU_MIRROR)/gnu/findutils/findutils-$(FINDUTILS_VERSION).tar.xz
 FINDUTILS_SHA256 = 1387e0b67ff247d2abde998f90dfbf70c1491391a59ddfecb8ae698789f0a4f5
 FINDUTILS_ENV = $(bg-pkg-at-cross-env)
 

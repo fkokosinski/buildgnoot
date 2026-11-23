@@ -15,7 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 GLIBC_STAGE_1_VERSION = 2.44
-GLIBC_STAGE_1_URI = https://ftpmirror.gnu.org/glibc/glibc-$(GLIBC_STAGE_1_VERSION).tar.gz
+GLIBC_STAGE_1_URI = $(CONFIG_BG_GNU_MIRROR)/gnu/glibc/glibc-$(GLIBC_STAGE_1_VERSION).tar.gz
 GLIBC_STAGE_1_SHA256 = 1217fc41ac7fb1f310c8c32b9c6c009cc769398d4b367b6aa57be0bb3ea8c1ef
 GLIBC_STAGE_1_BDEPS = \
 	host-binutils \
@@ -44,7 +44,7 @@ $(eval $(call bg-fetch-tarball,glibc-stage-1))
 $(eval $(call bg-build-autotools,glibc-stage-1))
 
 GLIBC_VERSION = 2.44
-GLIBC_URI = https://ftpmirror.gnu.org/glibc/glibc-$(GLIBC_VERSION).tar.gz
+GLIBC_URI = $(CONFIG_BG_GNU_MIRROR)/gnu/glibc/glibc-$(GLIBC_VERSION).tar.gz
 GLIBC_SHA256 = 1217fc41ac7fb1f310c8c32b9c6c009cc769398d4b367b6aa57be0bb3ea8c1ef
 GLIBC_BDEPS = \
 	host-binutils \

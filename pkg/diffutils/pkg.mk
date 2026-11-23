@@ -15,7 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 DIFFUTILS_VERSION = 3.12
-DIFFUTILS_URI = https://ftpmirror.gnu.org/diffutils/diffutils-$(DIFFUTILS_VERSION).tar.xz
+DIFFUTILS_URI = $(CONFIG_BG_GNU_MIRROR)/gnu/diffutils/diffutils-$(DIFFUTILS_VERSION).tar.xz
 DIFFUTILS_SHA256 = 7c8b7f9fc8609141fdea9cece85249d308624391ff61dedaf528fcb337727dfd
 DIFFUTILS_PATCHES = $(abspath pkg/diffutils/diffutils-disable-man.diff)
 DIFFUTILS_ENV = $(bg-pkg-at-cross-env)

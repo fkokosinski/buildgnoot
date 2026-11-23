@@ -15,7 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 COREUTILS_VERSION = 9.5
-COREUTILS_URI = https://ftpmirror.gnu.org/coreutils/coreutils-$(COREUTILS_VERSION).tar.xz
+COREUTILS_URI = $(CONFIG_BG_GNU_MIRROR)/gnu/coreutils/coreutils-$(COREUTILS_VERSION).tar.xz
 COREUTILS_SHA256 = cd328edeac92f6a665de9f323c93b712af1858bc2e0d88f3f7100469470a1b8a
 
 COREUTILS_AUTOTOOLS_CONFIGURE_FLAGS = \

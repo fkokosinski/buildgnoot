@@ -15,7 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 LIBPARTED_VERSION = 3.8
-LIBPARTED_URI = https://ftpmirror.gnu.org/parted/parted-$(LIBPARTED_VERSION).tar.xz
+LIBPARTED_URI = $(CONFIG_BG_GNU_MIRROR)/gnu/parted/parted-$(LIBPARTED_VERSION).tar.xz
 LIBPARTED_SHA256 = a2b7811f47b0ddb1f7b1d0aa456f7c1270da70708ce231c2fe054c7199eafa63
 
 LIBPARTED_BDEPS = \
