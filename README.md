@@ -21,8 +21,13 @@ direnv allow
 # generate .config
 make alldefconfig
 
-# build buildgnoot
+# build buildgnoot cross-compiler
+# Note: depending on your hardware, this step could take around 20 minutes
 make bg-toolchain
+
+# build buildgnoot image
+# Note: depending on your hardware and the chosen configuration, this step could
+# take around 10 minutes
 make bg-image
 
 # run qemu
