@@ -48,7 +48,7 @@ GLIBC_URI = $(CONFIG_BG_GNU_MIRROR)/gnu/glibc/glibc-$(GLIBC_VERSION).tar.gz
 GLIBC_SHA256 = 1217fc41ac7fb1f310c8c32b9c6c009cc769398d4b367b6aa57be0bb3ea8c1ef
 GLIBC_BDEPS = \
 	host-binutils \
-	gcc \
+	host-gcc \
 	hurd-headers \
 	gnumach-headers \
 	mig

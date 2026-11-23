@@ -18,7 +18,7 @@ BG_TOOLCHAIN_VERSION = $(BG_VERSION_MAJOR).$(BG_VERSION_MINOR).$(BG_VERSION_PATC
 BG_TOOLCHAIN_BDEPS = \
 	host-binutils \
 	pkg-config-lite \
-	gcc \
+	host-gcc \
 	glibc \
 	gnumach-headers \
 	hurd-headers \
