@@ -17,7 +17,7 @@
 MIG_VERSION = cb48044b30fcfe10529ecc1129dd68e93ed73835
 MIG_URI = git://git.git.savannah.gnu.org/hurd/mig.git
 
-MIG_BDEPS = host-binutils gcc-stage-1 gnumach-headers
+MIG_BDEPS = host-binutils host-gcc-stage-1 gnumach-headers
 MIG_AUTOTOOLS_RUN_AUTORECONF = yes
 MIG_AUTOTOOLS_CONFIGURE_FLAGS = \
 	--target=$(CONFIG_BG_TOOLCHAIN_TARGET) \
