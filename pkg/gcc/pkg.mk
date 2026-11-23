@@ -14,67 +14,60 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-HOST_GCC_STAGE_1_VERSION = 16.2.0
-HOST_GCC_STAGE_1_URI = $(CONFIG_BG_GNU_MIRROR)/gnu/gcc/gcc-$(HOST_GCC_STAGE_1_VERSION)/gcc-$(HOST_GCC_STAGE_1_VERSION).tar.xz
-HOST_GCC_STAGE_1_SHA256 = e6738e29597f733270731aa90600f37ffdc045079dfc27ec7e8192cc81085c3e
+define bg-pkg-gcc
+$(call bg-pkg-getprop-raw,$(1),VERSION) = 16.2.0
+$(call bg-pkg-getprop-raw,$(1),URI) = $(CONFIG_BG_GNU_MIRROR)/gnu/gcc/gcc-$$($(call bg-pkg-getprop-raw,$(1),VERSION))/gcc-$$($(call bg-pkg-getprop-raw,$(1),VERSION)).tar.xz
+$(call bg-pkg-getprop-raw,$(1),SHA256) = e6738e29597f733270731aa90600f37ffdc045079dfc27ec7e8192cc81085c3e
+$$(eval $$(call bg-fetch-tarball,$(1)))
 
-HOST_GCC_STAGE_1_BDEPS = host-binutils
+$(call bg-pkg-getprop-raw,$(1),BDEPS) = host-binutils
+ifeq ($(1),host-gcc)
+$(call bg-pkg-getprop-raw,$(1),BDEPS) += glibc-stage-1 gnumach-headers
+endif
 
-HOST_GCC_STAGE_1_AUTOTOOLS_CONFIGURE_FLAGS = \
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_CONFIGURE_FLAGS) = \
 	--target=$(CONFIG_BG_TOOLCHAIN_TARGET) \
-	--prefix=$(bg-pkg-install-path) \
+	--prefix=$$(bg-pkg-install-path) \
 	--with-sysroot=$(call bg-pkg-install-path,bg-toolchain)/$(CONFIG_BG_TOOLCHAIN_TARGET) \
 	--disable-bootstrap \
+	--disable-libgomp \
+	--disable-multilib \
+	--disable-nls \
+	--with-system-zlib
+
+ifeq ($(1),host-gcc-stage-1)
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_CONFIGURE_FLAGS) += \
 	--disable-decimal-float \
 	--disable-gcov \
 	--disable-libatomic \
-	--disable-libgomp \
 	--disable-libquadmath \
 	--disable-libssp \
 	--disable-libvtv \
-	--disable-multilib \
-	--disable-nls \
 	--disable-shared \
 	--disable-target-zlib \
 	--disable-threads \
 	--enable-languages=c \
 	--with-newlib \
-	--without-headers \
-	--with-system-zlib
+	--without-headers
+endif
 
-HOST_GCC_STAGE_1_AUTOTOOLS_BUILD_TARGETS = $(bg-space)
-HOST_GCC_STAGE_1_AUTOTOOLS_INSTALL_TARGETS = install
-
-$(eval $(call bg-fetch-tarball,host-gcc-stage-1))
-$(eval $(call bg-build-autotools,host-gcc-stage-1))
-
-HOST_GCC_VERSION = 16.2.0
-HOST_GCC_URI = $(CONFIG_BG_GNU_MIRROR)/gnu/gcc/gcc-$(HOST_GCC_VERSION)/gcc-$(HOST_GCC_VERSION).tar.xz
-HOST_GCC_SHA256 = e6738e29597f733270731aa90600f37ffdc045079dfc27ec7e8192cc81085c3e
-
-HOST_GCC_BDEPS = host-binutils glibc-stage-1 gnumach-headers
-
-HOST_GCC_AUTOTOOLS_CONFIGURE_FLAGS = \
+ifeq ($(1),host-gcc)
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_CONFIGURE_FLAGS) += \
 	LDFLAGS= \
 	LDFLAGS_FOR_TARGET="-Wl,-rpath-link,$(bg-pkg-build-path)/lib" \
-	--target=$(CONFIG_BG_TOOLCHAIN_TARGET) \
-	--prefix=$(bg-pkg-install-path) \
-	--with-sysroot=$(call bg-pkg-install-path,bg-toolchain)/$(CONFIG_BG_TOOLCHAIN_TARGET) \
-	--with-build-sysroot=$(bg-pkg-build-path) \
+	--with-build-sysroot=$$(bg-pkg-build-path) \
 	--with-native-system-header-dir=/include \
-	--disable-bootstrap \
-	--disable-libgomp \
-	--disable-multilib \
-	--disable-nls \
 	--enable-languages=c,c++ \
 	--enable-shared \
 	--enable-static \
 	--enable-threads=posix \
-	--with-libstdcxx-time \
-	--with-system-zlib
+	--with-libstdcxx-time
+endif
 
-HOST_GCC_AUTOTOOLS_BUILD_TARGETS = $(bg-space)
-HOST_GCC_AUTOTOOLS_INSTALL_TARGETS = install
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_BUILD_TARGETS) = $$(bg-space)
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_INSTALL_TARGETS) = install
+$$(eval $$(call bg-build-autotools,$(1)))
+endef
 
-$(eval $(call bg-fetch-tarball,host-gcc))
-$(eval $(call bg-build-autotools,host-gcc))
+$(eval $(call bg-pkg-gcc,host-gcc-stage-1))
+$(eval $(call bg-pkg-gcc,host-gcc))
