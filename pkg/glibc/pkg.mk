@@ -14,59 +14,42 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-GLIBC_STAGE_1_VERSION = 2.44
-GLIBC_STAGE_1_URI = $(CONFIG_BG_GNU_MIRROR)/gnu/glibc/glibc-$(GLIBC_STAGE_1_VERSION).tar.gz
-GLIBC_STAGE_1_SHA256 = 1217fc41ac7fb1f310c8c32b9c6c009cc769398d4b367b6aa57be0bb3ea8c1ef
-GLIBC_STAGE_1_BDEPS = \
+define bg-pkg-glibc
+$(call bg-pkg-getprop-raw,$(1),VERSION) = 2.44
+$(call bg-pkg-getprop-raw,$(1),URI) = $(CONFIG_BG_GNU_MIRROR)/gnu/glibc/glibc-$$($(call bg-pkg-getprop-raw,$(1),VERSION)).tar.gz
+$(call bg-pkg-getprop-raw,$(1),SHA256) = 1217fc41ac7fb1f310c8c32b9c6c009cc769398d4b367b6aa57be0bb3ea8c1ef
+$$(eval $$(call bg-fetch-tarball,$(1)))
+
+$(call bg-pkg-getprop-raw,$(1),BDEPS) = \
 	host-binutils \
-	host-gcc-stage-1 \
 	hurd-headers \
 	gnumach-headers \
 	mig
 
-GLIBC_STAGE_1_AUTOTOOLS_CONFIGURE_FLAGS = \
-	CC=$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc \
-	AR=$(CONFIG_BG_TOOLCHAIN_TARGET)-ar \
-	RANLIB=$(CONFIG_BG_TOOLCHAIN_TARGET)-ranlib \
-	libc_cv_ctors_header=yes \
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_CONFIGURE_FLAGS) = \
 	--host=$(CONFIG_BG_TOOLCHAIN_TARGET) \
 	--prefix= \
 	--disable-nscd \
 	--disable-profile \
 	--enable-add-ons=libpthread \
 	--enable-obsolete-rpc \
-	--with-headers=$(bg-pkg-build-path)/include
+	--with-headers=$$(bg-pkg-build-path)/include
 
-GLIBC_STAGE_1_AUTOTOOLS_BUILD_TARGETS = $(bg-space)
-GLIBC_STAGE_1_AUTOTOOLS_INSTALL_TARGETS = install_root=$(bg-pkg-install-path) install
+$(call bg-pkg-getprop-raw,$(1),ENV) = $(bg-pkg-at-cross-env)
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_BUILD_TARGETS) = $$(bg-space)
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_INSTALL_TARGETS) = install_root=$$(bg-pkg-install-path) install
 
-$(eval $(call bg-fetch-tarball,glibc-stage-1))
-$(eval $(call bg-build-autotools,glibc-stage-1))
+ifeq ($(1),glibc-stage-1)
+$(call bg-pkg-getprop-raw,$(1),BDEPS) += host-gcc-stage-1
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_CONFIGURE_FLAGS) += libc_cv_ctors_header=yes
+endif
 
-GLIBC_VERSION = 2.44
-GLIBC_URI = $(CONFIG_BG_GNU_MIRROR)/gnu/glibc/glibc-$(GLIBC_VERSION).tar.gz
-GLIBC_SHA256 = 1217fc41ac7fb1f310c8c32b9c6c009cc769398d4b367b6aa57be0bb3ea8c1ef
-GLIBC_BDEPS = \
-	host-binutils \
-	host-gcc \
-	hurd-headers \
-	gnumach-headers \
-	mig
+ifeq ($(1),glibc)
+$(call bg-pkg-getprop-raw,$(1),BDEPS) += host-gcc
+endif
 
-GLIBC_AUTOTOOLS_CONFIGURE_FLAGS = \
-	CC=$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc \
-	AR=$(CONFIG_BG_TOOLCHAIN_TARGET)-ar \
-	RANLIB=$(CONFIG_BG_TOOLCHAIN_TARGET)-ranlib \
-	--host=$(CONFIG_BG_TOOLCHAIN_TARGET) \
-	--prefix= \
-	--disable-nscd \
-	--disable-profile \
-	--enable-add-ons=libpthread \
-	--enable-obsolete-rpc \
-	--with-headers=$(bg-pkg-build-path)/include
+$$(eval $$(call bg-build-autotools,$(1)))
+endef
 
-GLIBC_AUTOTOOLS_BUILD_TARGETS = $(bg-space)
-GLIBC_AUTOTOOLS_INSTALL_TARGETS = install_root=$(bg-pkg-install-path) install
-
-$(eval $(call bg-fetch-tarball,glibc))
-$(eval $(call bg-build-autotools,glibc))
+$(eval $(call bg-pkg-glibc,glibc-stage-1))
+$(eval $(call bg-pkg-glibc,glibc))
