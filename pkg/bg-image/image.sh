@@ -28,28 +28,23 @@ create_qemu_image() {
 }
 
 part_qemu_image() {
-    loop="$(sudo losetup --find --show --partscan $image)"
+    offset=2048
 
-    sudo parted -s "$loop" mklabel msdos
-    sudo parted -s "$loop" mkpart primary ext2 2048s 100%
-    sudo parted -s "$loop" set 1 boot on
+    parted -s "$image" mklabel msdos
+    parted -s "$image" mkpart primary ext2 "${offset}s" 100%
+    parted -s "$image" set 1 boot on
+    partprobe "$image"
 
-    sudo partprobe "$loop"
-    sudo mkfs.ext2 -o hurd -m 1 "${loop}p1"
-
-    sudo losetup -d "$loop"
+    # note: this is assuming 512 sector size
+    mke2fs -t ext2 -o hurd -m 1 -E "offset=$((offset * 512))" -d "$rootfs" "$image"
 }
 
-copy_rootfs() {
+install_grub() {
     mnt_dir="$(mktemp -d /tmp/buildgnoot.XXXXXX)"
     loop="$(sudo losetup --find --show --partscan $image)"
 
-    sudo mount "${loop}p1" "$mnt_dir"
-
-    # copy normal files
-    sudo rsync -av "$rootfs/" "$mnt_dir"
-
     # install grub
+    sudo mount "${loop}p1" "$mnt_dir"
     sudo grub-install \
         --target=i386-pc \
         --directory="$mnt_dir/lib/grub/i386-pc" \
@@ -63,4 +58,4 @@ copy_rootfs() {
 
 create_qemu_image
 part_qemu_image
-copy_rootfs
+install_grub
