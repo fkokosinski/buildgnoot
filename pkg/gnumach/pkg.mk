@@ -14,47 +14,45 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-GNUMACH_HEADERS_VERSION = f349a52f3ac6f97024122f59d843f667206913fa
-GNUMACH_HEADERS_URI = https://https.git.savannah.gnu.org/git/hurd/gnumach.git/
+define bg-pkg-gnumach
+$(call bg-pkg-getprop-raw,$(1),VERSION) = f349a52f3ac6f97024122f59d843f667206913fa
+$(call bg-pkg-getprop-raw,$(1),URI) = https://https.git.savannah.gnu.org/git/hurd/gnumach.git/
+$$(eval $$(call bg-fetch-git,$(1)))
 
-GNUMACH_HEADERS_AUTOTOOLS_RUN_AUTORECONF = yes
-GNUMACH_HEADERS_AUTOTOOLS_CONFIGURE_FLAGS = \
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_RUN_AUTORECONF) = yes
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_CONFIGURE_FLAGS) = \
 	--target=$(CONFIG_BG_TOOLCHAIN_TARGET) \
-	--prefix=$(bg-pkg-install-path) \
+	--prefix=$$(bg-pkg-install-path) \
 	--disable-user32
-GNUMACH_HEADERS_AUTOTOOLS_INSTALL_TARGETS = install-data
 
-$(eval $(call bg-fetch-git,gnumach-headers))
-$(eval $(call bg-build-autotools,gnumach-headers))
+ifeq ($(1),gnumach-headers)
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_INSTALL_TARGETS) = install-data
+endif
 
-GNUMACH_VERSION = f349a52f3ac6f97024122f59d843f667206913fa
-GNUMACH_URI = https://https.git.savannah.gnu.org/git/hurd/gnumach.git/
-
-GNUMACH_AUTOTOOLS_RUN_AUTORECONF = yes
-GNUMACH_AUTOTOOLS_CONFIGURE_FLAGS = \
-	CC=$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc \
-	LD=$(CONFIG_BG_TOOLCHAIN_TARGET)-ld \
-	MIG=$(CONFIG_BG_TOOLCHAIN_TARGET)-mig \
+ifeq ($(1),gnumach)
+$(call bg-pkg-getprop-raw,$(1),ENV) = $(bg-pkg-at-cross-env)
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_CONFIGURE_FLAGS) += \
 	LDFLAGS= \
-	--target=$(CONFIG_BG_TOOLCHAIN_TARGET) \
-	--prefix=$(bg-pkg-install-path) \
 	--exec-prefix=/tmp/throwitaway \
 	--enable-kdb \
 	--enable-kmsg \
 	--disable-net-group \
 	--disable-pcmcia-group \
-	--disable-wireless-group \
-	--disable-user32
+	--disable-wireless-group
 
-GNUMACH_AUTOTOOLS_BUILD_TARGETS = \
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_BUILD_TARGETS) = \
 	gnumach.gz \
 	gnumach \
 	gnumach.msgids
 
-GNUMACH_AUTOTOOLS_INSTALL_TARGETS = \
-	DESTDIR=$(bg-pkg-install-path) \
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_INSTALL_TARGETS) = \
+	DESTDIR=$$(bg-pkg-install-path) \
 	exec_bootdir=/boot \
 	install
+endif
 
-$(eval $(call bg-fetch-git,gnumach))
-$(eval $(call bg-build-autotools,gnumach))
+$$(eval $$(call bg-build-autotools,$(1)))
+endef
+
+$(eval $(call bg-pkg-gnumach,gnumach-headers))
+$(eval $(call bg-pkg-gnumach,gnumach))
