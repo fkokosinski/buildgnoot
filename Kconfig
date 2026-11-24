@@ -90,5 +90,6 @@ source "pkg/e2fsprogs/Kconfig"
 source "pkg/findutils/Kconfig"
 source "pkg/gcc/Kconfig"
 source "pkg/glibc/Kconfig"
+source "pkg/gnumach/Kconfig"
 
 endmenu # "Packages"
