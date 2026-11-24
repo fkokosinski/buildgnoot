@@ -91,5 +91,6 @@ source "pkg/findutils/Kconfig"
 source "pkg/gcc/Kconfig"
 source "pkg/glibc/Kconfig"
 source "pkg/gnumach/Kconfig"
+source "pkg/grub/Kconfig"
 
 endmenu # "Packages"
