@@ -17,11 +17,7 @@
 ZLIB_VERSION = 1.4
 ZLIB_URI = https://zlib.net/zlib-$(ZLIB_VERSION).tar.gz
 ZLIB_SHA256 = 02dd159783677a749c04adbdd02b55b8a2bcc7e054f51b76b549199a916ad584
-
-ZLIB_ENV = \
-	CC=x86_64-gnu-gcc \
-	AR=x86_64-gnu-ar \
-	RANLIB=x86_64-gnu-ranlib
+ZLIB_ENV = $(bg-pkg-at-cross-env)
 
 ZLIB_AUTOTOOLS_CONFIGURE_FLAGS = --prefix=$(bg-pkg-install-path)
 ZLIB_AUTOTOOLS_BUILD_TARGETS = $(bg-space)
