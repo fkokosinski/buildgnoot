@@ -88,6 +88,7 @@ source "pkg/coreutils/Kconfig"
 source "pkg/diffutils/Kconfig"
 source "pkg/e2fsprogs/Kconfig"
 source "pkg/findutils/Kconfig"
+source "pkg/gcc/Kconfig"
 source "pkg/glibc/Kconfig"
 
 endmenu # "Packages"
