@@ -17,11 +17,8 @@
 SED_VERSION = 4.9
 SED_URI = $(CONFIG_BG_GNU_MIRROR)/gnu/sed/sed-$(SED_VERSION).tar.xz
 SED_SHA256 = 6e226b732e1cd739464ad6862bd1a1aba42d7982922da7a53519631d24975181
-
+SED_ENV = $(bg-pkg-at-cross-env)
 SED_AUTOTOOLS_CONFIGURE_FLAGS = \
-       CC=$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc \
-       AR=$(CONFIG_BG_TOOLCHAIN_TARGET)-ar \
-       RANLIB=$(CONFIG_BG_TOOLCHAIN_TARGET)-ranlib \
        --prefix=$(bg-pkg-install-path) \
        --host=$(CONFIG_BG_TOOLCHAIN_TARGET)
 SED_AUTOTOOLS_BUILD_TARGETS = $(bg-empty)
