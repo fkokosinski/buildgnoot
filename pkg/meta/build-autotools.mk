@@ -18,7 +18,8 @@ define bg-pkg-at-cross-env
 CC=$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc \
 CXX=$(CONFIG_BG_TOOLCHAIN_TARGET)-g++ \
 AR=$(CONFIG_BG_TOOLCHAIN_TARGET)-ar \
-RANLIB=$(CONFIG_BG_TOOLCHAIN_TARGET)-ranlib
+RANLIB=$(CONFIG_BG_TOOLCHAIN_TARGET)-ranlib \
+HOST_LDFLAGS="-ldl -lhurduser -lmachuser"
 endef
 
 # bg-pkg-at-configure-flags - returns Autotools configuration flags
