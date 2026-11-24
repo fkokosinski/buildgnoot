@@ -21,11 +21,9 @@ SHADOW_PATCHES = \
        $(abspath pkg/shadow/patches/shadow-utmp.patch) \
        $(abspath pkg/shadow/patches/hurd-compatible.patch)
 SHADOW_BDEPS = libxcrypt
+SHADOW_ENV = $(bg-pkg-at-cross-env)
 
 SHADOW_AUTOTOOLS_CONFIGURE_FLAGS = \
-       CC=$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc \
-       AR=$(CONFIG_BG_TOOLCHAIN_TARGET)-ar \
-       RANLIB=$(CONFIG_BG_TOOLCHAIN_TARGET)-ranlib \
        --prefix=$(bg-pkg-install-path) \
        --host=$(CONFIG_BG_TOOLCHAIN_TARGET) \
        --enable-subordinate-ids=yes \
