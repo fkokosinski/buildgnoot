@@ -17,14 +17,9 @@
 LIBXCRYPT_VERSION = 4.5.2
 LIBXCRYPT_URI = https://github.com/besser82/libxcrypt/releases/download/v$(LIBXCRYPT_VERSION)/libxcrypt-$(LIBXCRYPT_VERSION).tar.xz
 LIBXCRYPT_SHA256 = 71513a31c01a428bccd5367a32fd95f115d6dac50fb5b60c779d5c7942aec071
-
+LIBXCRYPT_ENV = $(bg-pkg-at-cross-env)
 LIBXCRYPT_AUTOTOOLS_CONFIGURE_FLAGS = \
 	CFLAGS=-Wno-error=discarded-qualifiers \
-	CC="$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc" \
-	CXX="$(CONFIG_BG_TOOLCHAIN_TARGET)-g++" \
-	AR="$(CONFIG_BG_TOOLCHAIN_TARGET)-ar" \
-	RANLIB="$(CONFIG_BG_TOOLCHAIN_TARGET)-ranlib" \
-	PKG_CONFIG=pkg-config \
 	--host=$(CONFIG_BG_TOOLCHAIN_TARGET) \
 	--prefix=$(bg-pkg-install-path) \
 	--enable-hashes=strong,glibc \
