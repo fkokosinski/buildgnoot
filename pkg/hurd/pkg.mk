@@ -14,100 +14,45 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-HURD_HEADERS_VERSION = 2336993cf542f430a424fbad426844594c80d213
-HURD_HEADERS_URI = git://git.git.savannah.gnu.org/hurd/hurd.git
-HURD_HEADERS_BDEPS = mig
+define bg-pkg-hurd
+$(call bg-pkg-getprop-raw,$(1),VERSION) =  2336993cf542f430a424fbad426844594c80d213
+$(call bg-pkg-getprop-raw,$(1),URI) = git://git.git.savannah.gnu.org/hurd/hurd.git
+$$(eval $$(call bg-fetch-git,$(1)))
 
-HURD_HEADERS_AUTOTOOLS_RUN_AUTORECONF = yes
-HURD_HEADERS_AUTOTOOLS_CONFIGURE_FLAGS = \
+# package environment
+ifneq ($(1),hurd-headers)
+$(call bg-pkg-getprop-raw,$(1),ENV) = \
+	$(bg-pkg-at-cross-env) \
+	LDFLAGS="-ldl -lhurduser -lmachuser"
+endif
+
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_RUN_AUTORECONF) = yes
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_CONFIGURE_FLAGS) = \
 	--host=$(CONFIG_BG_TOOLCHAIN_TARGET) \
 	--target=$(CONFIG_BG_TOOLCHAIN_TARGET) \
-	--prefix=$(bg-pkg-install-path) \
-	--disable-profile \
-	--without-libbz2 \
-	--without-libz \
-	--without-rump \
-	--disable-ncursesw \
+	--disable-profile
+
+# custom package configuration options
+ifeq ($(1),hurd)
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_CONFIGURE_FLAGS) += --prefix=/
+else
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_CONFIGURE_FLAGS) += \
+	--prefix=$$(bg-pkg-install-path) \
 	--without-parted
+endif
 
-HURD_HEADERS_AUTOTOOLS_INSTALL_TARGETS = no_deps=t install-headers
+ifeq ($(1),hurd-headers)
+$(call bg-pkg-getprop-raw,$(1),BDEPS) = mig
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_INSTALL_TARGETS) = no_deps=t install-headers
+endif
 
-$(eval $(call bg-fetch-git,hurd-headers))
-$(eval $(call bg-build-autotools,hurd-headers))
+ifeq ($(1),hurd-stage-1)
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_BUILD_TARGETS) = $$(bg-empty)
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_INSTALL_TARGETS) = install
+endif
 
-LIBIRQHELP_VERSION = 2336993cf542f430a424fbad426844594c80d213
-LIBIRQHELP_URI = git://git.git.savannah.gnu.org/hurd/hurd.git
-
-LIBIRQHELP_AUTOTOOLS_RUN_AUTORECONF = yes
-LIBIRQHELP_AUTOTOOLS_CONFIGURE_FLAGS = \
-	CC=$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc \
-	CXX=$(CONFIG_BG_TOOLCHAIN_TARGET)-g++ \
-	AR=$(CONFIG_BG_TOOLCHAIN_TARGET)-ar \
-	RANLIB=$(CONFIG_BG_TOOLCHAIN_TARGET)-ranlib \
-	LDFLAGS="-ldl -lhurduser -lmachuser" \
-	--host=$(CONFIG_BG_TOOLCHAIN_TARGET) \
-	--prefix=$(bg-pkg-install-path) \
-	--disable-profile \
-	--without-parted
-
-LIBIRQHELP_AUTOTOOLS_BUILD_TARGETS = libirqhelp
-LIBIRQHELP_AUTOTOOLS_INSTALL_TARGETS = libirqhelp-install
-
-$(eval $(call bg-fetch-git,libirqhelp))
-$(eval $(call bg-build-autotools,libirqhelp))
-
-LIBSHOULDBEINLIBC_VERSION = 2336993cf542f430a424fbad426844594c80d213
-LIBSHOULDBEINLIBC_URI = git://git.git.savannah.gnu.org/hurd/hurd.git
-
-LIBSHOULDBEINLIBC_AUTOTOOLS_RUN_AUTORECONF = yes
-LIBSHOULDBEINLIBC_AUTOTOOLS_CONFIGURE_FLAGS = \
-	CC=$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc \
-	CXX=$(CONFIG_BG_TOOLCHAIN_TARGET)-g++ \
-	AR=$(CONFIG_BG_TOOLCHAIN_TARGET)-ar \
-	RANLIB=$(CONFIG_BG_TOOLCHAIN_TARGET)-ranlib \
-	LDFLAGS="-ldl -lhurduser -lmachuser" \
-	--host=$(CONFIG_BG_TOOLCHAIN_TARGET) \
-	--prefix=$(bg-pkg-install-path) \
-	--disable-profile \
-	--without-parted
-
-LIBSHOULDBEINLIBC_AUTOTOOLS_BUILD_TARGETS = libshouldbeinlibc
-LIBSHOULDBEINLIBC_AUTOTOOLS_INSTALL_TARGETS = libshouldbeinlibc-install
-
-$(eval $(call bg-fetch-git,libshouldbeinlibc))
-$(eval $(call bg-build-autotools,libshouldbeinlibc))
-
-HURD_STAGE_1_VERSION = 2336993cf542f430a424fbad426844594c80d213
-HURD_STAGE_1_URI = git://git.git.savannah.gnu.org/hurd/hurd.git
-
-HURD_STAGE_1_AUTOTOOLS_RUN_AUTORECONF = yes
-HURD_STAGE_1_AUTOTOOLS_CONFIGURE_FLAGS = \
-	CC=$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc \
-	CXX=$(CONFIG_BG_TOOLCHAIN_TARGET)-g++ \
-	AR=$(CONFIG_BG_TOOLCHAIN_TARGET)-ar \
-	RANLIB=$(CONFIG_BG_TOOLCHAIN_TARGET)-ranlib \
-	MIG=$(CONFIG_BG_TOOLCHAIN_TARGET)-mig \
-	PKG_CONFIG=pkg-config \
-	LDFLAGS="-ldl -lhurduser -lmachuser" \
-	--host=$(CONFIG_BG_TOOLCHAIN_TARGET) \
-	--prefix=$(bg-pkg-install-path) \
-	--enable-static-progs='ext2fs,iso9660fs,rumpdisk,pci-arbiter,acpi' \
-	--disable-profile \
-	--without-parted \
-	--without-libbz2 \
-	--without-libz \
-	--disable-ncursesw \
-	ac_cv_search_clnt_create=no
-
-HURD_STAGE_1_AUTOTOOLS_BUILD_TARGETS = $(bg-empty)
-HURD_STAGE_1_AUTOTOOLS_INSTALL_TARGETS = install
-
-$(eval $(call bg-fetch-git,hurd-stage-1))
-$(eval $(call bg-build-autotools,hurd-stage-1))
-
-HURD_VERSION = 2336993cf542f430a424fbad426844594c80d213
-HURD_URI = git://git.git.savannah.gnu.org/hurd/hurd.git
-HURD_BDEPS = \
+ifeq ($(1),hurd)
+$(call bg-pkg-getprop-raw,$(1),BDEPS) += \
 	e2fsprogs \
 	hurd-stage-1 \
 	libacpica \
@@ -122,28 +67,30 @@ HURD_BDEPS = \
 	ncurses \
 	rumpkernel \
 	zlib
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_CONFIGURE_FLAGS) += \
+	CFLAGS="-Wno-error=strict-prototypes -I$$(bg-pkg-build-path)/include -I$$(bg-pkg-build-path)/usr/include" \
+	LDFLAGS="-ldl -lhurduser -lmachuser $$$$$$$$LDFLAGS" \
+	--enable-static-progs='ext2fs,iso9660fs,rumpdisk,pci-arbiter,acpi'
+	
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_BUILD_TARGETS) = $$(bg-empty)
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_INSTALL_TARGETS) = DESTDIR=$$(bg-pkg-install-path) install
+endif
 
-HURD_AUTOTOOLS_RUN_AUTORECONF = yes
-HURD_AUTOTOOLS_CONFIGURE_FLAGS = \
-	CC=$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc \
-	CFLAGS="-Wno-error=strict-prototypes -I$(bg-pkg-build-path)/include -I$(bg-pkg-build-path)/usr/include" \
-	CXX=$(CONFIG_BG_TOOLCHAIN_TARGET)-g++ \
-	AR=$(CONFIG_BG_TOOLCHAIN_TARGET)-ar \
-	RANLIB=$(CONFIG_BG_TOOLCHAIN_TARGET)-ranlib \
-	MIG=$(CONFIG_BG_TOOLCHAIN_TARGET)-mig \
-	PKG_CONFIG=pkg-config \
-	LDFLAGS="-ldl -lhurduser -lmachuser $$$$LDFLAGS" \
-	--host=$(CONFIG_BG_TOOLCHAIN_TARGET) \
-	--prefix=/ \
-	--enable-static-progs='ext2fs,iso9660fs,rumpdisk,pci-arbiter,acpi' \
-	--disable-profile \
-	--without-libbz2 \
-	--without-libz \
-	--disable-ncursesw \
-	ac_cv_search_clnt_create=no
+ifeq ($(1),libirqhelp)
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_BUILD_TARGETS) = libirqhelp
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_INSTALL_TARGETS) = libirqhelp-install
+endif
 
-HURD_AUTOTOOLS_BUILD_TARGETS = $(bg-empty)
-HURD_AUTOTOOLS_INSTALL_TARGETS = DESTDIR=$(bg-pkg-install-path) install
+ifeq ($(1),libshouldbeinlibc)
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_BUILD_TARGETS) = libshouldbeinlibc
+$(call bg-pkg-getprop-raw,$(1),AUTOTOOLS_INSTALL_TARGETS) = libshouldbeinlibc-install
+endif
 
-$(eval $(call bg-fetch-git,hurd))
-$(eval $(call bg-build-autotools,hurd))
+$$(eval $$(call bg-build-autotools,$(1)))
+endef
+
+$(eval $(call bg-pkg-hurd,hurd-headers))
+$(eval $(call bg-pkg-hurd,hurd-stage-1))
+$(eval $(call bg-pkg-hurd,hurd))
+$(eval $(call bg-pkg-hurd,libirqhelp))
+$(eval $(call bg-pkg-hurd,libshouldbeinlibc))
