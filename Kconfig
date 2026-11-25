@@ -93,6 +93,7 @@ source "pkg/glibc/Kconfig"
 source "pkg/gnumach/Kconfig"
 source "pkg/grub/Kconfig"
 source "pkg/hurd/Kconfig"
+source "pkg/sed/Kconfig"
 source "pkg/zlib/Kconfig"
 
 endmenu # "Packages"
