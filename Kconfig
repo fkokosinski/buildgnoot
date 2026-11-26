@@ -95,6 +95,7 @@ source "pkg/libpciaccess/Kconfig"
 source "pkg/libxcrypt/Kconfig"
 source "pkg/ncurses/Kconfig"
 source "pkg/sed/Kconfig"
+source "pkg/shadow/Kconfig"
 source "pkg/zlib/Kconfig"
 
 endmenu # "Packages"

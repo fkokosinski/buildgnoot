@@ -20,7 +20,6 @@ BG_ROOTFS_BDEPS = \
 	libgcrypt \
 	libgpg-error \
 	libparted \
-	shadow \
 	$(call bg-kconfig-pkg,bash) \
 	$(call bg-kconfig-pkg,binutils) \
 	$(call bg-kconfig-pkg,coreutils) \
@@ -35,6 +34,7 @@ BG_ROOTFS_BDEPS = \
 	$(call bg-kconfig-pkg,libxcrypt) \
 	$(call bg-kconfig-pkg,ncurses) \
 	$(call bg-kconfig-pkg,sed) \
+	$(call bg-kconfig-pkg,shadow) \
 	$(call bg-kconfig-pkg,zlib) \
 	$(bg-empty)
 

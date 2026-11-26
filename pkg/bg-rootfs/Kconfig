@@ -27,6 +27,7 @@ config BG_ROOTFS
 	select PKG_LIBXCRYPT
 	select PKG_LIBPCIACCESS
 	select PKG_SED
+	select PKG_SHADOW
 	select PKG_ZLIB
 	help
 	  Buildgnoot root filesystem.
