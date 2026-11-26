@@ -72,6 +72,12 @@ source "pkg/bg-toolchain/Kconfig"
 
 endmenu # "Toolchain"
 
+menu "Target filesystem"
+
+source "pkg/bg-rootfs/Kconfig"
+
+endmenu # "Target filesystem"
+
 menu "Packages"
 
 source "pkg/bash/Kconfig"

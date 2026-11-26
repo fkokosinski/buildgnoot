@@ -16,26 +16,26 @@
 
 BG_ROOTFS_VERSION = $(BG_VERSION_MAJOR).$(BG_VERSION_MINOR).$(BG_VERSION_PATCH)
 BG_ROOTFS_BDEPS = \
-	bash \
-	coreutils \
-	e2fsprogs \
-	glibc \
-	gnumach \
-	grub \
-	hurd \
 	libacpica \
 	libgcrypt \
 	libgpg-error \
 	libparted \
-	libpciaccess \
-	libxcrypt \
-	sed \
 	shadow \
-	zlib \
+	$(call bg-kconfig-pkg,bash) \
 	$(call bg-kconfig-pkg,binutils) \
+	$(call bg-kconfig-pkg,coreutils) \
 	$(call bg-kconfig-pkg,diffutils) \
+	$(call bg-kconfig-pkg,e2fsprogs) \
 	$(call bg-kconfig-pkg,findutils) \
+	$(call bg-kconfig-pkg,glibc) \
+	$(call bg-kconfig-pkg,gnumach) \
+	$(call bg-kconfig-pkg,grub) \
+	$(call bg-kconfig-pkg,hurd) \
+	$(call bg-kconfig-pkg,libpciaccess) \
+	$(call bg-kconfig-pkg,libxcrypt) \
 	$(call bg-kconfig-pkg,ncurses) \
+	$(call bg-kconfig-pkg,sed) \
+	$(call bg-kconfig-pkg,zlib) \
 	$(bg-empty)
 
 BG_ROOTFS_OVERLAY = $(abspath pkg/bg-rootfs/overlay)
