@@ -68,15 +68,7 @@ endmenu # "Mirrors"
 
 menu "Toolchain"
 
-config BG_TOOLCHAIN_TARGET
-	string "Cross-compiler toolchain target"
-	default "x86_64-gnu"
-	help
-	  Cross-compiler toolchain target. It's the system Buildgnoot builds for.
-
-	  Set to "x86_64-gnu" by default, and is used by e.g. GNU Autotools with
-	  the "--target" configuration option. It may need to be translated for other
-	  build systems.
+source "pkg/bg-toolchain/Kconfig"
 
 endmenu # "Toolchain"
 

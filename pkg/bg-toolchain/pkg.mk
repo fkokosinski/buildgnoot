@@ -16,10 +16,10 @@
 
 BG_TOOLCHAIN_VERSION = $(BG_VERSION_MAJOR).$(BG_VERSION_MINOR).$(BG_VERSION_PATCH)
 BG_TOOLCHAIN_BDEPS = \
-	host-binutils \
+	$(call bg-kconfig-pkg,host-binutils) \
+	$(call bg-kconfig-pkg,host-gcc) \
+	$(call bg-kconfig-pkg,glibc) \
 	pkg-config-lite \
-	host-gcc \
-	glibc \
 	gnumach-headers \
 	hurd-headers \
 	mig
