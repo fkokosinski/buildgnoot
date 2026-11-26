@@ -18,6 +18,7 @@ define bg-pkg-glibc
 $(call bg-pkg-getprop-raw,$(1),VERSION) = 2.44
 $(call bg-pkg-getprop-raw,$(1),URI) = $(CONFIG_BG_GNU_MIRROR)/gnu/glibc/glibc-$$($(call bg-pkg-getprop-raw,$(1),VERSION)).tar.gz
 $(call bg-pkg-getprop-raw,$(1),SHA256) = 1217fc41ac7fb1f310c8c32b9c6c009cc769398d4b367b6aa57be0bb3ea8c1ef
+$(call bg-pkg-getprop-raw,$(1),PATCHES) = $(abspath pkg/glibc/tg-mach-hurd-link.diff)
 $$(eval $$(call bg-fetch-tarball,$(1)))
 
 $(call bg-pkg-getprop-raw,$(1),BDEPS) = \
