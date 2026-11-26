@@ -14,6 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+define bg-kconfig-pkg
+$(if $(CONFIG_PKG_$(call bg-pkg-fmtprop,$(1))),$(1),)
+endef
+
 menuconfig:
 	@kconfig nconf Kconfig
 

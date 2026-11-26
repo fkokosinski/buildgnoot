@@ -32,19 +32,11 @@ BG_ROOTFS_BDEPS = \
 	sed \
 	shadow \
 	zlib \
+	$(call bg-kconfig-pkg,binutils) \
+	$(call bg-kconfig-pkg,diffutils) \
+	$(call bg-kconfig-pkg,findutils) \
+	$(call bg-kconfig-pkg,ncurses) \
 	$(bg-empty)
-
-ifeq ($(CONFIG_PKG_BINUTILS),y)
-BG_ROOTFS_BDEPS += binutils
-endif
-
-ifeq ($(CONFIG_PKG_DIFFUTILS),y)
-BG_ROOTFS_BDEPS += diffutils
-endif
-
-ifeq ($(CONFIG_PKG_FINDUTILS),y)
-BG_ROOTFS_BDEPS += findutils
-endif
 
 BG_ROOTFS_OVERLAY = $(abspath pkg/bg-rootfs/overlay)
 
