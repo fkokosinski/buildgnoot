@@ -17,12 +17,9 @@
 COREUTILS_VERSION = 9.5
 COREUTILS_URI = $(CONFIG_BG_GNU_MIRROR)/gnu/coreutils/coreutils-$(COREUTILS_VERSION).tar.xz
 COREUTILS_SHA256 = cd328edeac92f6a665de9f323c93b712af1858bc2e0d88f3f7100469470a1b8a
+COREUTILS_ENV = $(bg-pkg-at-cross-env)
 
 COREUTILS_AUTOTOOLS_CONFIGURE_FLAGS = \
-	CC=$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc \
-	AR=$(CONFIG_BG_TOOLCHAIN_TARGET)-ar \
-	RANLIB=$(CONFIG_BG_TOOLCHAIN_TARGET)-ranlib \
-	LIBS="-ldl -lhurduser -lmachuser" \
 	--prefix=$(bg-pkg-install-path) \
 	--host=$(CONFIG_BG_TOOLCHAIN_TARGET) \
 	--enable-install-program=hostname \
