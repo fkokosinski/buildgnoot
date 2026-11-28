@@ -27,6 +27,7 @@ BG_ROOTFS_BDEPS = \
 	$(call bg-kconfig-pkg,grub) \
 	$(call bg-kconfig-pkg,hurd) \
 	$(call bg-kconfig-pkg,libacpica) \
+	$(call bg-kconfig-pkg,libdaemon) \
 	$(call bg-kconfig-pkg,libgcrypt) \
 	$(call bg-kconfig-pkg,libgpg-error) \
 	$(call bg-kconfig-pkg,libparted) \
