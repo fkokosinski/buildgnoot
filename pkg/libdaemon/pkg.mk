@@ -17,11 +17,9 @@
 LIBDAEMON_VERSION = 0.14
 LIBDAEMON_URI = https://0pointer.de/lennart/projects/libdaemon/libdaemon-$(LIBDAEMON_VERSION).tar.gz
 LIBDAEMON_SHA256 = fd23eb5f6f986dcc7e708307355ba3289abe03cc381fc47a80bca4a50aa6b834
+LIBDAEMON_ENV = $(bg-pkg-at-cross-env)
 
 LIBDAEMON_AUTOTOOLS_CONFIGURE_FLAGS = \
-	CC=$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc \
-	AR=$(CONFIG_BG_TOOLCHAIN_TARGET)-ar \
-	RANLIB=$(CONFIG_BG_TOOLCHAIN_TARGET)-ranlib \
 	--prefix=$(bg-pkg-install-path) \
 	--host=$(CONFIG_BG_TOOLCHAIN_TARGET) \
     ac_cv_func_getpgrp_void=no \
