@@ -17,8 +17,6 @@
 BG_ROOTFS_VERSION = $(BG_VERSION_MAJOR).$(BG_VERSION_MINOR).$(BG_VERSION_PATCH)
 BG_ROOTFS_BDEPS = \
 	libgcrypt \
-	libgpg-error \
-	libparted \
 	$(call bg-kconfig-pkg,bash) \
 	$(call bg-kconfig-pkg,binutils) \
 	$(call bg-kconfig-pkg,coreutils) \
@@ -30,6 +28,8 @@ BG_ROOTFS_BDEPS = \
 	$(call bg-kconfig-pkg,grub) \
 	$(call bg-kconfig-pkg,hurd) \
 	$(call bg-kconfig-pkg,libacpica) \
+	$(call bg-kconfig-pkg,libgpg-error) \
+	$(call bg-kconfig-pkg,libparted) \
 	$(call bg-kconfig-pkg,libpciaccess) \
 	$(call bg-kconfig-pkg,libxcrypt) \
 	$(call bg-kconfig-pkg,ncurses) \
