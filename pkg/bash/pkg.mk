@@ -17,11 +17,9 @@
 BASH_VERSION = 5.3
 BASH_URI = $(CONFIG_BG_GNU_MIRROR)/gnu/bash/bash-$(BASH_VERSION).tar.gz
 BASH_SHA256 = 0d5cd86965f869a26cf64f4b71be7b96f90a3ba8b3d74e27e8e9d9d5550f31ba
+BASH_ENV = $(bg-pkg-at-cross-env)
 
 BASH_AUTOTOOLS_CONFIGURE_FLAGS = \
-	CC=$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc \
-	AR=$(CONFIG_BG_TOOLCHAIN_TARGET)-ar \
-	RANLIB=$(CONFIG_BG_TOOLCHAIN_TARGET)-ranlib \
 	CFLAGs="-fcommon" \
 	--prefix=$(bg-pkg-install-path) \
 	--host=$(CONFIG_BG_TOOLCHAIN_TARGET) \
