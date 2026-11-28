@@ -16,13 +16,11 @@
 
 LIBACPICA_VERSION = fd286403844463d9652841af47db1afe4b76e8c4
 LIBACPICA_URI = https://salsa.debian.org/hurd-team/libacpica.git
-
+LIBACPICA_ENV = $(bg-pkg-at-cross-env)
 LIBACPICA_PATCHES = $(foreach p,$(wildcard pkg/libacpica/patches/*.diff),$(abspath $(p)))
 LIBACPICA_BDEPS = libirqhelp libpciaccess
 
 LIBACPICA_MAKE_BUILD_TARGETS = \
-	CC=$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc \
-	AR=$(CONFIG_BG_TOOLCHAIN_TARGET)-ar \
 	PREFIX=$(bg-pkg-install-path) \
 	all
 
