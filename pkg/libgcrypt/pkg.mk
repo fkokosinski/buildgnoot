@@ -17,12 +17,10 @@
 LIBGCRYPT_VERSION = 1.11.1
 LIBGCRYPT_URI = https://gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-$(LIBGCRYPT_VERSION).tar.bz2
 LIBGCRYPT_SHA256 = 24e91c9123a46c54e8371f3a3a2502f1198f2893fbfbf59af95bc1c21499b00e
+LIBGCRYPT_ENV = $(bg-pkg-at-cross-env)
 LIBGCRYPT_BDEPS = libgpg-error
 
 LIBGCRYPT_AUTOTOOLS_CONFIGURE_FLAGS = \
-	CC=$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc \
-	AR=$(CONFIG_BG_TOOLCHAIN_TARGET)-ar \
-	RANLIB=$(CONFIG_BG_TOOLCHAIN_TARGET)-ranlib \
 	--prefix=$(bg-pkg-install-path) \
 	--host=$(CONFIG_BG_TOOLCHAIN_TARGET) \
 	--disable-padlock-support \
