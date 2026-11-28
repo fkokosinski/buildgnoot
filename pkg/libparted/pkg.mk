@@ -17,16 +17,13 @@
 LIBPARTED_VERSION = 3.8
 LIBPARTED_URI = $(CONFIG_BG_GNU_MIRROR)/gnu/parted/parted-$(LIBPARTED_VERSION).tar.xz
 LIBPARTED_SHA256 = a2b7811f47b0ddb1f7b1d0aa456f7c1270da70708ce231c2fe054c7199eafa63
+LIBPARTED_ENV = $(bg-pkg-at-cross-env)
 
 LIBPARTED_BDEPS = \
 	e2fsprogs \
 	hurd-stage-1
 
 LIBPARTED_AUTOTOOLS_CONFIGURE_FLAGS = \
-	CC=$(CONFIG_BG_TOOLCHAIN_TARGET)-gcc \
-	AR=$(CONFIG_BG_TOOLCHAIN_TARGET)-ar \
-	RANLIB=$(CONFIG_BG_TOOLCHAIN_TARGET)-ranlib \
-	PKG_CONFIG=pkg-config \
 	CPPFLAGS="-I$(bg-pkg-build-path)/include -DUUID_STR_LEN=37" \
 	LIBS="-luuid" \
 	--prefix=$(bg-pkg-install-path) \
